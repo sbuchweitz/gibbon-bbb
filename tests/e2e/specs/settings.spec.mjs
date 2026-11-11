@@ -1,7 +1,7 @@
 // The settings page manages the BBB shared secret: administrators only.
 import { expect, test } from '@playwright/test';
 import { ADMIN, BBB_SECRET, GIBBON_URL } from '../support/env.mjs';
-import { login, restoreSnapshot, sql } from '../support/gibbon.mjs';
+import { clickAndLoad, login, restoreSnapshot, sql } from '../support/gibbon.mjs';
 import { PASSWORD, fixtures } from '../support/personas.mjs';
 
 const SETTINGS = `${GIBBON_URL}/index.php?q=/modules/BigBlueButton/bbb_settings.php`;
@@ -44,7 +44,7 @@ test('invalid settings are rejected with a message', async ({ page }) => {
   await login(page, ADMIN.username, ADMIN.password);
   await page.goto(SETTINGS);
   await page.fill('[name=recordingHostOverride]', 'javascript:alert(1)');
-  await Promise.all([page.waitForLoadState('load'), page.locator('#bigBlueButtonSettings [type=submit]').first().click()]);
+  await clickAndLoad(page, page.locator('#bigBlueButtonSettings [type=submit]').first());
 
   await expect(page.getByText('The recording host override must be an origin')).toBeVisible();
   expect(sql("SELECT value FROM gibbonSetting WHERE scope='BigBlueButton' AND name='recordingHostOverride'")[0]?.[0] ?? '').toBe('');

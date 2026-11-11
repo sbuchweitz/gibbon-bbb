@@ -15,9 +15,10 @@ Module for [Gibbon][gibbon]: BigBlueButton video classes and recordings for less
 
 ## Requirements
 
-- Gibbon v30 or newer
-- PHP 8.2 or newer with the `curl`, `json`, `mbstring` and `simplexml` extensions
+- Gibbon v25 or newer (tested with v25.0.01, v26.0.00, v27.0.01, v28.0.01, v29.0.00 and v30.0.02)
+- PHP 8.2 or newer with the `curl`, `json`, `mbstring` and `simplexml` extensions. On older PHP the module still installs, but it only shows administrators a notice.
 - BigBlueButton 2.4.3 or newer (2.6+ recommended)
+- Tested in Chromium and in WebKit, the engine behind Safari. Firefox and Safari itself have not been tested.
 
 ## Installation
 
@@ -41,11 +42,11 @@ Module for [Gibbon][gibbon]: BigBlueButton video classes and recordings for less
 | Mode | Join Class (New Tab) opens… | Notes |
 |---|---|---|
 | **Embedded** (default) | a Gibbon page with the class in an iframe | Popups (such as the learning analytics dashboard) are allowed. A *Trouble joining?* link opens the class without the frame. |
-| **Direct** | BigBlueButton itself | Nothing to relax. The most compatible option (Safari, Scalelite). |
+| **Direct** | BigBlueButton itself | Nothing to relax. Use it behind Scalelite, or if a browser refuses the frame. |
 
 *Embedded* needs Gibbon on **HTTPS**. Inside a plain-HTTP page the browser gives the class no camera or microphone, and BigBlueButton's client fails. The class page detects this and opens the class directly instead.
 
-*Allow embedded join without session cookie* (default **Yes**) is needed when Gibbon and BigBlueButton are on different domains, because a cross-site iframe cannot use BigBlueButton's session cookie. Set it to **No** if both share a domain (for example `gibbon.school.org` and `bbb.school.org`).
+*Allow embedded join without session cookie* (default **Yes**) is needed when Gibbon and BigBlueButton are on different domains, because a cross-site iframe cannot use BigBlueButton's session cookie (Chromium and Safari's WebKit both drop it). Set it to **No** if both share a domain (for example `gibbon.school.org` and `bbb.school.org`).
 
 ## Permissions
 
@@ -75,11 +76,11 @@ Update the module in *System Admin › Manage Modules*. The upgrade:
 ## Development
 
 - **Tests.** Run `tests/harness/compose.yml` on Docker. It brings up Gibbon v30, MariaDB and a mock BigBlueButton server.
-  - `cp tests/harness/.env.example tests/harness/.env`, then set the two addresses.
+  - `cp tests/harness/.env.example tests/harness/.env`, then set the two addresses. To test another Gibbon release, also set `GIBBON_VERSION`, `GIBBON_SHA256` and `PHP_VERSION` there. `.env.example` lists the tested releases and their checksums.
   - `docker compose -f tests/harness/compose.yml up -d --build` starts the stack.
   - `docker compose -f tests/harness/compose.yml run --rm tests php tools/vendor/bin/phpunit` runs the unit and integration tests on PHP 8.2.
-  - `cd tests/e2e && npm ci && npm run install-gibbon && npm test` runs the Playwright end-to-end tests. The upgrade test also needs `tests/e2e/scripts/fetch-v161.sh`, which downloads the original 1.x module.
-  - `node tests/e2e/scripts/staging-smoke.mjs [--record]` checks a **real** BigBlueButton server. Put `BBB_STAGING_URL` and `BBB_STAGING_SECRET` in the git-ignored `.env` at the repository root. The script never prints the secret. It covers:
+  - `cd tests/e2e && npm ci && npx playwright install chromium webkit && npm run install-gibbon && npm test` runs the Playwright end-to-end tests in Chromium and WebKit (`--project=chromium` for Chromium only). The upgrade test also needs `tests/e2e/scripts/fetch-v161.sh`, which downloads the original 1.x module. WebKit cannot treat the plain-HTTP harness as a secure origin, so it skips the two embedded-class tests there.
+  - `node tests/e2e/scripts/staging-smoke.mjs [--record] [--browser=webkit]` checks a **real** BigBlueButton server. Put `BBB_STAGING_URL` and `BBB_STAGING_SECRET` in the git-ignored `.env` at the repository root. The script never prints the secret. It covers:
     - the settings connection test
     - embedded and direct joins
     - microphone and webcam inside the frame

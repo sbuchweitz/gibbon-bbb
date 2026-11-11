@@ -24,4 +24,5 @@ Rewrite of the module.
 - Fresh installs no longer grant parents the live and recorded actions.
 
 ### Requirements
-- PHP 8.2+, Gibbon v30+, BigBlueButton 2.4.3+.
+- PHP 8.2+, Gibbon v25+ (tested up to v30.0.02), BigBlueButton 2.4.3+.
+- Tested in Chromium and WebKit (Safari's engine).

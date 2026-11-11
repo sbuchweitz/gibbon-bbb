@@ -75,7 +75,21 @@ final class RecordingPresenterTest extends TestCase
         parse_str((string) parse_url($view->links[0]->viewerUrl, PHP_URL_QUERY), $query);
 
         self::assertStringStartsWith(self::VIEWER.'?', $view->links[0]->viewerUrl);
-        self::assertSame(['gibbonPlannerEntryID' => '42', 'recordID' => self::ID_A, 'format' => 'presentation', 'search' => '77'], $query);
+        self::assertSame(['gibbonPlannerEntryID' => '42', 'recording' => self::ID_A, 'format' => 'presentation', 'search' => '77'], $query);
+    }
+
+    public function testViewerUrlParametersNamedIdCarryOnlyLettersAndDigits(): void
+    {
+        // Gibbon v25 strips everything but letters and digits from URL parameters whose name ends in "ID".
+        [$view] = $this->presenter()->present([self::recording(self::ID_A, 1794380520000)], 42, false, 77);
+        $query = [];
+        parse_str((string) parse_url($view->links[0]->viewerUrl, PHP_URL_QUERY), $query);
+
+        foreach ($query as $name => $value) {
+            if (str_ends_with((string) $name, 'ID')) {
+                self::assertMatchesRegularExpression('/^[a-zA-Z0-9]*$/', (string) $value, (string) $name);
+            }
+        }
     }
 
     public function testPresentationOnlyHidesTheOtherFormats(): void

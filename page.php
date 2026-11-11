@@ -3,7 +3,7 @@
  * gibbon-bbb: BigBlueButton module for Gibbon.
  * SPDX-License-Identifier: Apache-2.0
  *
- * Shared front controller for the module's standalone (new tab) pages. PHP 8.0-parseable like bootstrap.php.
+ * Shared front controller for the module's standalone (new tab) pages. PHP 7-parseable like bootstrap.php.
  * Not a page itself: opening it directly does nothing.
  */
 

@@ -13,6 +13,9 @@ namespace Gibbon\Module\BigBlueButton\Recording;
  */
 final class RecordingPresenter
 {
+    /** Not "recordID": Gibbon v25 strips everything but letters and digits from URL parameters ending in "ID". */
+    public const VIEWER_RECORDING_PARAMETER = 'recording';
+
     private const LABELS = ['presentation' => 'Presentation', 'video' => 'Video', 'transcript' => 'Transcript', 'summary' => 'Summary'];
 
     public function __construct(
@@ -73,7 +76,7 @@ final class RecordingPresenter
 
     private function viewerUrl(int $plannerEntryID, string $recordID, string $type, ?int $childID): string
     {
-        $query = ['gibbonPlannerEntryID' => $plannerEntryID, 'recordID' => $recordID, 'format' => $type];
+        $query = ['gibbonPlannerEntryID' => $plannerEntryID, self::VIEWER_RECORDING_PARAMETER => $recordID, 'format' => $type];
         if ($childID !== null && $childID > 0) {
             $query['search'] = $childID;
         }

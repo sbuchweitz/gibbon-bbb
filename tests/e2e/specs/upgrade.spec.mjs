@@ -3,7 +3,7 @@
 import { expect, test } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import { ADMIN, BBB_SECRET, BBB_URL, GIBBON_URL } from '../support/env.mjs';
-import { lessonUrl, login, restoreSnapshot, sql, sqlValue } from '../support/gibbon.mjs';
+import { clickAndLoad, lessonUrl, login, restoreSnapshot, sql, sqlValue } from '../support/gibbon.mjs';
 import { mountModule } from '../support/harness.mjs';
 import { mock } from '../support/mock.mjs';
 import { PASSWORD } from '../support/personas.mjs';
@@ -53,7 +53,7 @@ async function teacherSavesLesson(browser, change) {
   await login(page, personas.teacher, PASSWORD);
   await page.goto(`${GIBBON_URL}/index.php?q=/modules/Planner/planner_edit.php&gibbonPlannerEntryID=${lessonID}&viewBy=class&gibbonCourseClassID=${personas.classID}`);
   if (change) await change(page);
-  await Promise.all([page.waitForLoadState('load'), page.locator('form [type=submit]').last().click()]);
+  await clickAndLoad(page, page.locator('form [type=submit]').last());
   const saved = page.url().includes('return=success');
   await context.close();
   return saved;
@@ -62,14 +62,14 @@ async function teacherSavesLesson(browser, change) {
 test('install and use v1.6.1', async ({ page, browser }) => {
   await login(page, ADMIN.username, ADMIN.password);
   await page.goto(`${GIBBON_URL}/index.php?q=/modules/System Admin/module_manage.php`);
-  await Promise.all([page.waitForLoadState('load'), page.locator('a[href*="module_manage_installProcess.php?name=BigBlueButton"]').first().click()]);
+  await clickAndLoad(page, page.locator('a[href*="module_manage_installProcess.php?name=BigBlueButton"]').first());
   expect(sqlValue("SELECT version FROM gibbonModule WHERE name='BigBlueButton'")).toBe('1.6.1');
 
   await page.goto(`${GIBBON_URL}/index.php?q=/modules/BigBlueButton/bbb_settings.php`);
   await page.locator('[name=enableBigBlueButton]').evaluate((el) => { el.value = 'Y'; el.dispatchEvent(new Event('change', { bubbles: true })); });
   await page.fill('[name=bigBlueButtonURL]', `${BBB_URL}/bigbluebutton/`);
   await page.fill('[name=bigBlueButtonCredentials]', BBB_SECRET);
-  await Promise.all([page.waitForLoadState('load'), page.locator('form [type=submit]').last().click()]);
+  await clickAndLoad(page, page.locator('form [type=submit]').last());
 
   personas = pickPersonas();
   const videoChatID = sqlValue("SELECT gibbonCustomFieldID FROM gibbonCustomField WHERE context='Lesson Plan' AND name='Video Chat'");
@@ -104,8 +104,8 @@ test('upgrade to 2.0.0 through the module updater', async ({ page }) => {
   await login(page, ADMIN.username, ADMIN.password);
   await page.goto(`${GIBBON_URL}/index.php?q=/modules/System Admin/module_manage.php`);
   const updateLink = page.locator('a[href*="module_manage_update.php"]').filter({ has: page.locator('xpath=self::*') }).first();
-  await Promise.all([page.waitForLoadState('load'), updateLink.click()]);
-  await Promise.all([page.waitForLoadState('load'), page.locator('form [type=submit]').last().click()]);
+  await clickAndLoad(page, updateLink);
+  await clickAndLoad(page, page.locator('form [type=submit]').last());
 
   expect(sqlValue("SELECT version FROM gibbonModule WHERE name='BigBlueButton'")).toBe('2.0.0');
   expect(settingsRoles()).toEqual(['Administrator']);

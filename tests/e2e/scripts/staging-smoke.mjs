@@ -5,18 +5,21 @@
 // student (embedded and direct), uses microphone and webcam inside the embedded frame, checks roles through the
 // BBB API, optionally starts a recording, then ends the meeting and reopens it. Prints a pass/fail table;
 // screenshots go to test-results/staging-*.png.
-//   node scripts/staging-smoke.mjs [--record]
+//   node scripts/staging-smoke.mjs [--record] [--browser=webkit]
+// --browser=webkit runs the same steps in Playwright's WebKit (Safari's engine, with mock camera and microphone).
 // Embedded camera/microphone need Gibbon on HTTPS (a plain-HTTP page gives the iframe no media devices): start the
 // harness "tls" profile, point Gibbon's absoluteURL at it and run with GIBBON_URL=https://<GIBBON_TLS_HOST>:2007.
-import { chromium } from '@playwright/test';
+import { chromium, webkit } from '@playwright/test';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { ADMIN, GIBBON_URL } from '../support/env.mjs';
-import { lessonUrl, login, sqlValue } from '../support/gibbon.mjs';
+import { clickAndLoad, lessonUrl, login, sqlValue } from '../support/gibbon.mjs';
 import { PASSWORD } from '../support/personas.mjs';
 import { createLesson, pickPersonas } from '../support/seed.mjs';
 
 const RECORD = process.argv.includes('--record');
+const ENGINE = (process.argv.find((arg) => arg.startsWith('--browser=')) ?? '--browser=chromium').slice('--browser='.length);
+if (!['chromium', 'webkit'].includes(ENGINE)) throw new Error(`Unsupported --browser=${ENGINE} (chromium or webkit)`);
 const envFile = new URL('../../../.env', import.meta.url);
 const env = existsSync(envFile)
   ? Object.fromEntries(readFileSync(envFile, 'utf8').split('\n').map((l) => l.match(/^\s*([A-Z_]+)\s*=\s*(.*?)\s*$/)).filter(Boolean).map((m) => [m[1], m[2]]))
@@ -43,7 +46,7 @@ async function step(name, fn) {
   } catch (error) {
     results.push({ step: name, ok: false, detail: String(error.message).split('\n')[0].slice(0, 160) });
     for (const [i, page] of failureShots.entries()) {
-      await page.screenshot({ path: `test-results/staging-failed-${results.length - 1}-${i}.png` }).catch(() => {});
+      await page.screenshot({ path: shot(`failed-${results.length - 1}-${i}`) }).catch(() => {});
     }
   }
 }
@@ -73,7 +76,11 @@ const pad = (n) => String(n).padStart(2, '0');
 const hms = (d) => `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:00`;
 
 const secureOriginFlag = GIBBON_URL.startsWith('http:') ? [`--unsafely-treat-insecure-origin-as-secure=${new URL(GIBBON_URL).origin}`] : [];
-const browser = await chromium.launch({ channel: 'chromium', args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', ...secureOriginFlag] });
+// WebKit has no secure-origin flag (embedded media then needs the HTTPS front) and ships mock capture devices.
+const browser = ENGINE === 'webkit'
+  ? await webkit.launch()
+  : await chromium.launch({ channel: 'chromium', args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', ...secureOriginFlag] });
+const shot = (name) => `test-results/staging-${ENGINE}-${name}.png`;
 const contextFor = () => browser.newContext({ permissions: ['camera', 'microphone'], viewport: { width: 1400, height: 900 }, ignoreHTTPSErrors: GIBBON_URL.startsWith('https:') });
 mkdirSync('test-results', { recursive: true });
 let meetingID = '';
@@ -86,7 +93,7 @@ try {
     await page.goto(`${GIBBON_URL}/index.php?q=/modules/BigBlueButton/bbb_settings.php`);
     await page.fill('[name=bigBlueButtonURL]', BBB);
     await page.fill('[name=bigBlueButtonCredentials]', SECRET);
-    await Promise.all([page.waitForLoadState('load'), page.locator('#bigBlueButtonSettings [type=submit]').first().click()]);
+    await clickAndLoad(page, page.locator('#bigBlueButtonSettings [type=submit]').first());
     const message = await page.locator('.success, .warning, .error').allInnerTexts();
     if (!page.url().includes('return=success0')) throw new Error(`not saved cleanly: ${message.join(' | ')}`);
     return message.find((m) => m.includes('Connected')) ?? 'saved';
@@ -98,6 +105,12 @@ try {
   lessonID = createLesson(personas.classID, 'Staging Smoke Test', now.toISOString().slice(0, 10), hms(new Date(now - 5 * 60_000)), hms(new Date(+now + 40 * 60_000)), { [videoChatID]: 'Include', videoLink: '' });
 
   const teacher = await (await contextFor()).newPage();
+  const bbbRequests = { total: 0, withCookie: 0 };
+  teacher.context().on('requestfinished', async (request) => {
+    if (new URL(request.url()).origin !== BBB_ORIGIN) return;
+    bbbRequests.total += 1;
+    if (await request.headerValue('cookie').catch(() => null)) bbbRequests.withCookie += 1;
+  });
   let teacherTab;
   await step('teacher: Join Class (New Tab) → embedded BBB client loads', async () => {
     await login(teacher, personas.teacher, PASSWORD);
@@ -107,9 +120,16 @@ try {
     failureShots = [teacherTab];
     const frame = teacherTab.frameLocator('iframe.bbb-frame');
     await waitForClient(frame);
-    await teacherTab.screenshot({ path: 'test-results/staging-teacher-embedded.png' });
+    await teacherTab.screenshot({ path: shot('teacher-embedded') });
     meetingID = sqlValue(`SELECT meetingID FROM bigBlueButtonMeeting WHERE gibbonPlannerEntryID=${lessonID}`) ?? '';
     return `frame ${teacherTab.frames().find((f) => f.url().includes('/html5client'))?.url().replace(/\?.*$/, '') ?? '(url hidden)'}`;
+  });
+
+  // Safari blocks cookies in cross-site frames; the class must then run on allowRequestsWithoutSession alone.
+  await step('browser: BBB cookies in the cross-site frame (informational)', async () => {
+    const names = (await teacher.context().cookies(BBB_ORIGIN)).map((cookie) => cookie.name);
+    const crossSite = new URL(GIBBON_URL).hostname.split('.').slice(-2).join('.') !== new URL(BBB_ORIGIN).hostname.split('.').slice(-2).join('.');
+    return `${crossSite ? 'cross-site' : 'same-site'} frame; stored: ${names.join(', ') || 'none'}; sent on ${bbbRequests.withCookie}/${bbbRequests.total} BBB requests`;
   });
 
   await step('teacher: microphone works inside the frame (echo test)', async () => {
@@ -134,7 +154,7 @@ try {
     await assertNoCrash(frame);
     const videos = Number(tag(await api('getMeetingInfo', { meetingID }), 'videoCount')[0] ?? 0);
     if (videos < 1) throw new Error(`videoCount=${videos}`);
-    await teacherTab.screenshot({ path: 'test-results/staging-teacher-av.png' });
+    await teacherTab.screenshot({ path: shot('teacher-av') });
     return `videoCount=${videos}`;
   });
 
@@ -155,7 +175,7 @@ try {
     await frame.locator('[data-test="listenOnlyBtn"]').click({ timeout: 15_000 });
     await student.waitForTimeout(5_000);
     await assertNoCrash(frame);
-    await student.screenshot({ path: 'test-results/staging-student-embedded.png' });
+    await student.screenshot({ path: shot('student-embedded') });
     const roles = tag(await api('getMeetingInfo', { meetingID }), 'role');
     if (!roles.includes('VIEWER')) throw new Error(`roles: ${roles.join(',')}`);
     return `roles ${roles.join(',')}`;
@@ -188,7 +208,7 @@ try {
     await page.goto(`${GIBBON_URL}/modules/BigBlueButton/bbb_join.php?gibbonPlannerEntryID=${lessonID}`);
     await page.waitForURL((url) => url.origin === BBB_ORIGIN, { timeout: 30_000 });
     await waitForClient(page.mainFrame());
-    await page.screenshot({ path: 'test-results/staging-direct.png' });
+    await page.screenshot({ path: shot('direct') });
     return page.url().replace(/\?.*$/, '');
   });
 
@@ -201,13 +221,13 @@ try {
     const body = await page.locator('body').innerText();
     if (body.includes('cannot be reached')) throw new Error('module reported BBB unreachable after end');
     await waitForClient(page.frameLocator('iframe.bbb-frame'), 60_000);
-    await page.screenshot({ path: 'test-results/staging-reopened.png' });
+    await page.screenshot({ path: shot('reopened') });
     return 'reopened with the same meeting ID';
   });
 
   await step('cleanup: end the meeting', async () => tag(await api('end', { meetingID }), 'returncode')[0]);
 } finally {
   await browser.close();
-  writeFileSync('test-results/staging-smoke.json', JSON.stringify({ lessonID, meetingID, results }, null, 2));
+  writeFileSync(`test-results/staging-smoke-${ENGINE}.json`, JSON.stringify({ engine: ENGINE, lessonID, meetingID, results }, null, 2));
   console.table(results);
 }

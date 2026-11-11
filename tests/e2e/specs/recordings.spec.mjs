@@ -2,7 +2,7 @@
 // Also covers recordings surviving lesson edits and the wrong-playback-host workaround.
 import { expect, test } from '@playwright/test';
 import { ADMIN, BBB_URL, GIBBON_URL } from '../support/env.mjs';
-import { lessonUrl, login, q, restoreSnapshot, sql } from '../support/gibbon.mjs';
+import { clickAndLoad, lessonUrl, login, q, restoreSnapshot, sql } from '../support/gibbon.mjs';
 import { mock } from '../support/mock.mjs';
 import { PASSWORD, fixtures } from '../support/personas.mjs';
 
@@ -11,14 +11,17 @@ const MEETING_ID = 'gibbon-e2e-past-meeting';
 const BROKEN_HOST = 'bigbluebutton.example.org';
 let recordIDs = [];
 
+const editUrl = (id) =>
+  `${GIBBON_URL}/index.php?q=/modules/Planner/planner_edit.php&gibbonPlannerEntryID=${id}&viewBy=class&gibbonCourseClassID=${personas.classID}`;
+
 const viewerUrl = (recordID, format, id = lessons.past) =>
-  `${GIBBON_URL}/modules/BigBlueButton/bbb_recording.php?gibbonPlannerEntryID=${id}&recordID=${recordID}&format=${format}`;
+  `${GIBBON_URL}/modules/BigBlueButton/bbb_recording.php?gibbonPlannerEntryID=${id}&recording=${recordID}&format=${format}`;
 
 async function setOverride(page, origin) {
   await login(page, ADMIN.username, ADMIN.password);
   await page.goto(`${GIBBON_URL}/index.php?q=/modules/BigBlueButton/bbb_settings.php`);
   await page.fill('[name=recordingHostOverride]', origin);
-  await Promise.all([page.waitForLoadState('load'), page.locator('#bigBlueButtonSettings [type=submit]').first().click()]);
+  await clickAndLoad(page, page.locator('#bigBlueButtonSettings [type=submit]').first());
   expect(page.url()).toContain('return=success0');
 }
 
@@ -75,6 +78,12 @@ test('recordings are buttons; click opens the viewer tab, href downloads the vid
   await tab.getByRole('link', { name: 'Video', exact: true }).click();
   await expect(tab.frameLocator('iframe.bbb-frame').locator('#playback')).toHaveAttribute('data-format', 'video');
   await expect(tab.getByRole('link', { name: 'Download' })).toHaveAttribute('href', href);
+
+  // A middle click opens the viewer as well, not the media file the href points at.
+  const [middle] = await Promise.all([page.context().waitForEvent('page'), video.click({ button: 'middle' })]);
+  await middle.waitForLoadState('load');
+  expect(middle.url()).toContain('/modules/BigBlueButton/bbb_recording.php');
+  expect(middle.url()).toContain('format=video');
 });
 
 test('the viewer only shows recordings of that lesson, to people who can see it', async ({ page }) => {
@@ -92,9 +101,9 @@ test('the viewer only shows recordings of that lesson, to people who can see it'
 
 test('editing and saving the lesson keeps its recordings', async ({ page, browser }) => {
   await login(page, personas.teacher, PASSWORD);
-  const edit = `${GIBBON_URL}/index.php?q=/modules/Planner/planner_edit.php&gibbonPlannerEntryID=${lessons.past}&viewBy=class&gibbonCourseClassID=${personas.classID}`;
+  const edit = editUrl(lessons.past);
   const save = async () => {
-    await Promise.all([page.waitForLoadState('load'), page.locator('form#action [type=submit], form [type=submit]').last().click()]);
+    await clickAndLoad(page, page.locator('form#action [type=submit], form [type=submit]').last());
     expect(page.url()).toMatch(/return=success/);
   };
 
@@ -121,8 +130,13 @@ test('moving the lesson to a later date keeps its recordings visible', async ({ 
 });
 
 test('Presentation Only lessons show just the presentation', async ({ page }) => {
-  const presentationOnlyID = sql("SELECT gibbonCustomFieldID FROM gibbonCustomField WHERE context='Lesson Plan' AND name='Presentation Only'")[0][0];
-  sql(`UPDATE gibbonPlannerEntry SET fields=JSON_SET(fields, ${q('$."' + presentationOnlyID + '"')}, 'Yes') WHERE gibbonPlannerEntryID=${lessons.past}`);
+  // Ticked in Gibbon's own lesson form: how teachers set it, and older Gibbon versions store the field differently.
+  await login(page, personas.teacher, PASSWORD);
+  await page.goto(editUrl(lessons.past));
+  await page.locator('input[type=checkbox][name^="custom"][value="Yes"]').check();
+  await clickAndLoad(page, page.locator('form#action [type=submit], form [type=submit]').last());
+  expect(page.url()).toMatch(/return=success/);
+
   await login(page, personas.student, PASSWORD);
   await page.goto(lessonUrl(lessons.past));
 

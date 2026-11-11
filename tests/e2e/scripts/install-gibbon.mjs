@@ -4,9 +4,10 @@
 import { chromium } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
 import { ADMIN, GIBBON_URL, COMPOSE_FILE } from '../support/env.mjs';
+import { clickAndLoad } from '../support/gibbon.mjs';
 
 async function submit(page) {
-  await Promise.all([page.waitForLoadState('load'), page.locator('form input[type=submit], form button[type=submit]').last().click()]);
+  await clickAndLoad(page, page.locator('form input[type=submit], form button[type=submit]').last());
   const error = page.locator('.error, [class*="bg-red"]').first();
   if (await error.isVisible().catch(() => false)) throw new Error(`Installer error: ${(await error.innerText()).trim()}`);
 }

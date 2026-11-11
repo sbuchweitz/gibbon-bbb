@@ -51,6 +51,8 @@ final class Schema
      */
     public static function tablesIfNotExists(): array
     {
-        return array_map(static fn (string $sql): string => str_replace('CREATE TABLE `', 'CREATE TABLE IF NOT EXISTS `', $sql), self::tables());
+        return array_map(static function (string $sql): string {
+            return str_replace('CREATE TABLE `', 'CREATE TABLE IF NOT EXISTS `', $sql);
+        }, self::tables());
     }
 }

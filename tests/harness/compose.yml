@@ -24,6 +24,8 @@ services:
       context: ./gibbon
       args:
         PHP_VERSION: ${PHP_VERSION:-8.4}
+        GIBBON_VERSION: ${GIBBON_VERSION:-v30.0.02}
+        GIBBON_SHA256: ${GIBBON_SHA256:-2dffb380ff9d7f9b815fbfc3ee8b8308bef2728f09a24e5084fd4901df77eeca}
     depends_on:
       db:
         condition: service_healthy

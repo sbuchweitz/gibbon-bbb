@@ -8,6 +8,11 @@ import { PASSWORD, fixtures } from '../support/personas.mjs';
 const { personas, lessons } = fixtures();
 const liveUrl = (id, extra = '') => `${GIBBON_URL}/modules/BigBlueButton/bbb_live.php?gibbonPlannerEntryID=${id}${extra}`;
 
+// WebKit cannot treat the plain-HTTP harness as a secure origin, so its class page joins directly (last test).
+// `node scripts/staging-smoke.mjs --browser=webkit` covers the embedded class in WebKit over HTTPS.
+const skipEmbeddedInWebKit = (browserName) =>
+  test.skip(browserName === 'webkit' && GIBBON_URL.startsWith('http:'), 'WebKit needs HTTPS for the embedded class');
+
 test.beforeEach(async () => {
   restoreSnapshot('bbb-ready');
   await mock.reset();
@@ -30,7 +35,8 @@ test('lesson page shows a Join button and never embeds the class', async ({ page
   expect((await mock.state()).requests.filter((r) => r.call !== '(index)')).toEqual([]); // no BBB calls on lesson view
 });
 
-test('teacher joins as moderator; meeting records only when started, popups allowed', async ({ page }) => {
+test('teacher joins as moderator; meeting records only when started, popups allowed', async ({ page, browserName }) => {
+  skipEmbeddedInWebKit(browserName);
   await login(page, personas.teacher, PASSWORD);
   await page.goto(lessonUrl(lessons.live));
   const tab = await openJoinTab(page);
@@ -55,7 +61,8 @@ test('teacher joins as moderator; meeting records only when started, popups allo
   await expect(popup.locator('#dashboard-title')).toContainText(create.params.meetingID);
 });
 
-test('student waits for the teacher, then joins automatically as viewer', async ({ page, browser }) => {
+test('student waits for the teacher, then joins automatically as viewer', async ({ page, browser, browserName }) => {
+  skipEmbeddedInWebKit(browserName);
   await login(page, personas.student, PASSWORD);
   await page.goto(lessonUrl(lessons.live));
   const tab = await openJoinTab(page);
@@ -111,18 +118,21 @@ test('Direct mode sends the tab straight to BigBlueButton', async ({ page }) => 
   expect((await mock.lastRequest('create')).params.allowRequestsWithoutSession).toBeUndefined();
 });
 
-test('on a plain-HTTP Gibbon the class page joins directly instead of embedding', async () => {
+test('on a plain-HTTP Gibbon the class page joins directly instead of embedding', async ({ browser: projectBrowser, browserName }) => {
   test.skip(!GIBBON_URL.startsWith('http:'), 'needs the plain-HTTP harness');
-  // args: [] drops the config's secure-origin flag (Playwright applies config launch options to manual launches too).
-  const browser = await chromium.launch({ args: [] });
+  // Chromium: args: [] drops the config's secure-origin flag (Playwright applies config launch options to manual
+  // launches too). WebKit never treats plain HTTP as secure.
+  const browser = browserName === 'chromium' ? await chromium.launch({ args: [] }) : projectBrowser;
+  const context = await browser.newContext();
   try {
-    const page = await browser.newPage();
+    const page = await context.newPage();
     await login(page, personas.teacher, PASSWORD);
     expect(await page.evaluate(() => window.isSecureContext)).toBe(false);
     await page.goto(liveUrl(lessons.live));
     await expect(page).toHaveURL(/\/html5client\/join\?sessionToken=/); // via bbb_join.php, top-level
     await expect(page.locator('#status')).toHaveAttribute('data-role', 'MODERATOR');
   } finally {
-    await browser.close();
+    await context.close();
+    if (browser !== projectBrowser) await browser.close();
   }
 });

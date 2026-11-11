@@ -12,5 +12,7 @@ use Gibbon\Module\BigBlueButton\Gibbon\RequestContext;
 require_once __DIR__.'/../../gibbon.php';
 require_once __DIR__.'/page.php';
 
-bigBlueButtonRunPage('/modules/BigBlueButton/bbb_join.php', static fn ($services, $view) => (new LiveController($services, $view))
-    ->page(RequestContext::id($_GET['gibbonPlannerEntryID'] ?? null), RequestContext::childID($_GET['search'] ?? null), JoinMode::Direct));
+bigBlueButtonRunPage('/modules/BigBlueButton/bbb_join.php', static function ($services, $view) {
+    return (new LiveController($services, $view))
+        ->page(RequestContext::id($_GET['gibbonPlannerEntryID'] ?? null), RequestContext::childID($_GET['search'] ?? null), JoinMode::Direct);
+});

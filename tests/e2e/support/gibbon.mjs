@@ -39,12 +39,25 @@ export function setPassword(username, password) {
        passwordForceReset='N', canLogin='Y', failCount=0 WHERE username=${q(username)};`);
 }
 
+/**
+ * Clicks something that loads a new page, then waits for that page. Waiting for "load" alongside the click is not
+ * enough: the current page is already loaded, so it resolves at once (WebKit then still shows the old page).
+ */
+export async function clickAndLoad(page, locator) {
+  const navigated = page.waitForEvent('framenavigated', { predicate: (frame) => frame === page.mainFrame() });
+  await locator.click();
+  await navigated;
+  await page.waitForLoadState('load');
+}
+
 export async function login(page, username, password) {
+  // Leave Gibbon first: an open Gibbon page sends itself to ?timeout=true once its session cookie is gone.
+  await page.goto('about:blank');
   await page.context().clearCookies();
   await page.goto(`${GIBBON_URL}/`);
   await page.fill('input[name=username]', username);
   await page.fill('input[name=password]', password);
-  await Promise.all([page.waitForLoadState('load'), page.locator('form input[type=submit], form button[type=submit]').first().click()]);
+  await clickAndLoad(page, page.locator('form input[type=submit], form button[type=submit]').first());
   if (await page.locator('input[name=password]').isVisible().catch(() => false)) {
     throw new Error(`Login failed for ${username}`);
   }
