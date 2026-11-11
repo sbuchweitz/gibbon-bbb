@@ -1,0 +1,3 @@
+.scratch/
+.phpunit.cache/
+coverage/

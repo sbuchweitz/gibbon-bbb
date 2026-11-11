@@ -1,0 +1,17 @@
+{
+    "name": "sbuchweitz/gibbon-bbb-tools",
+    "description": "Development tooling only; never shipped (tools/vendor is gitignored).",
+    "type": "project",
+    "license": "Apache-2.0",
+    "require": {
+        "php": ">=8.2",
+        "phpunit/phpunit": "^11.5",
+        "phpstan/phpstan": "^2.1"
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "sort-packages": true
+    }
+}

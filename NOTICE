@@ -1,0 +1,10 @@
+gibbon-bbb
+Copyright 2026 The gibbon-bbb authors
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product bundles third-party software in vendor/:
+
+  bigbluebutton/bigbluebutton-api-php 3.0.0
+  Licensed under the GNU Lesser General Public License v3.0 or later
+  (see vendor/bigbluebutton/bigbluebutton-api-php/LICENSE).

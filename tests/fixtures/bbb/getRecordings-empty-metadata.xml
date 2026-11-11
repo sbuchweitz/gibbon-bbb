@@ -1,0 +1,20 @@
+<response>
+  <returncode>SUCCESS</returncode>
+  <recordings>
+    <recording>
+      <recordID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124</recordID>
+      <meetingID>gibbon-abc123def456-42-7</meetingID>
+      <name>No metadata</name>
+      <published>false</published>
+      <startTime>1530718721124.0</startTime>
+      <endTime>1530722321876.0</endTime>
+      <metadata/>
+      <playback>
+        <format>
+          <type>presentation</type>
+          <url>https://bbb.example.net/playback/presentation/2.3/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124</url>
+        </format>
+      </playback>
+    </recording>
+  </recordings>
+</response>

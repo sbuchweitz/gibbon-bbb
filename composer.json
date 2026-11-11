@@ -1,0 +1,30 @@
+{
+    "name": "sbuchweitz/gibbon-bbb",
+    "description": "BigBlueButton video classes for Gibbon lesson plans",
+    "type": "project",
+    "license": "Apache-2.0",
+    "require": {
+        "php": ">=8.2",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-simplexml": "*",
+        "bigbluebutton/bigbluebutton-api-php": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gibbon\\Module\\BigBlueButton\\": "src/"
+        },
+        "files": [
+            "src/Compat/mb_trim.php"
+        ]
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "platform-check": false,
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

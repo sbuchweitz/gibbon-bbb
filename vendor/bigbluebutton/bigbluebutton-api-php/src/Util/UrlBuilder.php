@@ -1,0 +1,362 @@
+<?php
+
+/*
+ * BigBlueButton open source conferencing system - https://www.bigbluebutton.org/.
+ *
+ * Copyright (c) 2016-2026 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ *
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace BigBlueButton\Util;
+
+use BigBlueButton\Core\ApiMethod;
+use BigBlueButton\Enum\HashingAlgorithm;
+use BigBlueButton\Parameters\CreateMeetingParameters;
+use BigBlueButton\Parameters\DeleteRecordingsParameters;
+use BigBlueButton\Parameters\EndMeetingParameters;
+use BigBlueButton\Parameters\FeedbackParameters;
+use BigBlueButton\Parameters\GetJoinUrlParameters;
+use BigBlueButton\Parameters\GetMeetingInfoParameters;
+use BigBlueButton\Parameters\GetRecordingsParameters;
+use BigBlueButton\Parameters\GetRecordingTextTracksParameters;
+use BigBlueButton\Parameters\HooksCreateParameters;
+use BigBlueButton\Parameters\HooksDestroyParameters;
+use BigBlueButton\Parameters\InsertDocumentParameters;
+use BigBlueButton\Parameters\IsMeetingRunningParameters;
+use BigBlueButton\Parameters\JoinMeetingParameters;
+use BigBlueButton\Parameters\LearningDashboardParameters;
+use BigBlueButton\Parameters\PublishRecordingsParameters;
+use BigBlueButton\Parameters\PutRecordingTextTrackParameters;
+use BigBlueButton\Parameters\SendChatMessageParameters;
+use BigBlueButton\Parameters\UpdateRecordingsParameters;
+
+class UrlBuilder
+{
+    /** @deprecated Property will be private soon. Use setter/getter instead. */
+    protected HashingAlgorithm $hashingAlgorithm;
+
+    private string $secret;
+
+    private string $baseUrl;
+
+    public function __construct(
+        #[\SensitiveParameter]
+        string $secret,
+        string $baseUrl,
+        HashingAlgorithm $hashingAlgorithm,
+    ) {
+        $this->setSecret($secret);
+        $this->setBaseUrl($baseUrl);
+        $this->setHashingAlgorithm($hashingAlgorithm);
+    }
+
+    /**
+     * Creates a new instance from environment variables.
+     *
+     * The optional parameters allow to specify some of the values, while the
+     * remaining values fall back to environment variables or to a default
+     * value.
+     *
+     * This method only exists to BC-support creating a BigBlueButton class
+     * without injecting the UrlBuilder instance.
+     *
+     * @internal
+     */
+    public static function fromEnvVars(
+        ?string $secret = null,
+        ?string $baseUrl = null,
+        ?HashingAlgorithm $hashingAlgorithm = null,
+    ): static {
+        $secret ??= getenv('BBB_SECRET') ?: getenv('BBB_SECURITY_SALT');
+
+        if (false === $secret) {
+            throw new \RuntimeException("No BBB-Secret (or BBB-Salt) found! Please provide it either in constructor (2nd argument) or by environment variable 'BBB_SECRET' (or 'BBB_SECURITY_SALT')!");
+        }
+
+        $baseUrl ??= getenv('BBB_SERVER_BASE_URL');
+
+        if (false === $baseUrl) {
+            throw new \RuntimeException('No BBB-Server-Url found! Please provide it either in constructor ' . "(1st argument) or by environment variable 'BBB_SERVER_BASE_URL'!");
+        }
+
+        $hashingAlgorithm ??= HashingAlgorithm::SHA_256;
+
+        // Extending classes need to override this method, if they change the
+        // constructor signature.
+        // @phpstan-ignore new.static
+        return new static($secret, $baseUrl, $hashingAlgorithm);
+    }
+
+    // Getters & Setters
+    public function setSecret(
+        #[\SensitiveParameter]
+        string $secret,
+    ): self {
+        $this->secret = $secret;
+
+        return $this;
+    }
+
+    /**
+     * Gets the secret.
+     *
+     * This method only exists to support a deprecated property in the
+     * BigBlueButton class.
+     *
+     * @internal
+     */
+    public function getSecret(): string
+    {
+        return $this->secret;
+    }
+
+    public function setBaseUrl(string $baseUrl): self
+    {
+        // add tailing dir-separator if missing
+        if ('/' != mb_substr($baseUrl, -1)) {
+            $baseUrl .= '/';
+        }
+
+        $this->baseUrl = $baseUrl;
+
+        return $this;
+    }
+
+    /**
+     * Gets the base url.
+     *
+     * This method only exists to support a deprecated property in the
+     * BigBlueButton class.
+     *
+     * @internal
+     */
+    public function getBaseUrl(): string
+    {
+        return $this->baseUrl;
+    }
+
+    public function setHashingAlgorithm(HashingAlgorithm $hashingAlgorithm): self
+    {
+        $this->hashingAlgorithm = $hashingAlgorithm;
+
+        return $this;
+    }
+
+    public function getHashingAlgorithm(): HashingAlgorithm
+    {
+        return $this->hashingAlgorithm;
+    }
+
+    // Basic functions
+
+    /**
+     * Builds an API method URL that includes the url + params + its generated checksum.
+     */
+    public function buildUrl(string $method = '', string $params = '', bool $append = true): string
+    {
+        return $this->baseUrl . 'api/' . $method . ($append ? '?' . $this->buildQs($method, $params) : '');
+    }
+
+    /**
+     * Builds a query string for an API method URL that includes the params + its generated checksum.
+     *
+     * @deprecated Function only used internal. Function will be private soon. No replacement.
+     */
+    public function buildQs(string $method = '', string $params = ''): string
+    {
+        return $params . '&checksum=' . hash($this->hashingAlgorithm->value, $method . $params . $this->secret);
+    }
+
+    // URL-Generators
+    public function getCreateMeetingUrl(CreateMeetingParameters $createMeetingParams): string
+    {
+        return $this->buildUrl(ApiMethod::CREATE, $createMeetingParams->getHTTPQuery());
+    }
+
+    public function getJoinMeetingURL(JoinMeetingParameters $joinMeetingParams): string
+    {
+        return $this->buildUrl(ApiMethod::JOIN, $joinMeetingParams->getHTTPQuery());
+    }
+
+    public function getGetJoinUrlUrl(GetJoinUrlParameters $getJoinUrlParams): string
+    {
+        return $this->buildUrl(ApiMethod::GET_JOIN_URL, $getJoinUrlParams->getHTTPQuery());
+    }
+
+    public function getLearningDashboardUrl(LearningDashboardParameters $learningDashboardParams): string
+    {
+        return $this->buildUrl(ApiMethod::LEARNING_DASHBOARD, $learningDashboardParams->getHTTPQuery());
+    }
+
+    public function getEndMeetingURL(EndMeetingParameters $endParams): string
+    {
+        return $this->buildUrl(ApiMethod::END, $endParams->getHTTPQuery());
+    }
+
+    public function getInsertDocumentUrl(InsertDocumentParameters $insertDocumentParameters): string
+    {
+        return $this->buildUrl(ApiMethod::INSERT_DOCUMENT, $insertDocumentParameters->getHTTPQuery());
+    }
+
+    public function getSendChatMessageUrl(SendChatMessageParameters $sendChatMessageParameters): string
+    {
+        return $this->buildUrl(ApiMethod::SEND_CHAT_MESSAGE, $sendChatMessageParameters->getHTTPQuery());
+    }
+
+    public function getFeedbackUrl(FeedbackParameters $feedbackParameters): string
+    {
+        return $this->buildUrl(ApiMethod::FEEDBACK, $feedbackParameters->getHTTPQuery());
+    }
+
+    public function getIsMeetingRunningUrl(IsMeetingRunningParameters $meetingParams): string
+    {
+        return $this->buildUrl(ApiMethod::IS_MEETING_RUNNING, $meetingParams->getHTTPQuery());
+    }
+
+    public function getMeetingsUrl(): string
+    {
+        return $this->buildUrl(ApiMethod::GET_MEETINGS);
+    }
+
+    public function getSessionsUrl(): string
+    {
+        return $this->buildUrl(ApiMethod::GET_SESSIONS);
+    }
+
+    public function getMeetingInfoUrl(GetMeetingInfoParameters $meetingParams): string
+    {
+        return $this->buildUrl(ApiMethod::GET_MEETING_INFO, $meetingParams->getHTTPQuery());
+    }
+
+    public function getRecordingsUrl(GetRecordingsParameters $recordingsParams): string
+    {
+        return $this->buildUrl(ApiMethod::GET_RECORDINGS, $recordingsParams->getHTTPQuery());
+    }
+
+    public function getPublishRecordingsUrl(PublishRecordingsParameters $recordingParams): string
+    {
+        return $this->buildUrl(ApiMethod::PUBLISH_RECORDINGS, $recordingParams->getHTTPQuery());
+    }
+
+    public function getDeleteRecordingsUrl(DeleteRecordingsParameters $recordingParams): string
+    {
+        return $this->buildUrl(ApiMethod::DELETE_RECORDINGS, $recordingParams->getHTTPQuery());
+    }
+
+    public function getUpdateRecordingsUrl(UpdateRecordingsParameters $recordingParams): string
+    {
+        return $this->buildUrl(ApiMethod::UPDATE_RECORDINGS, $recordingParams->getHTTPQuery());
+    }
+
+    public function getRecordingTextTracksUrl(GetRecordingTextTracksParameters $getRecordingTextTracksParameters): string
+    {
+        return $this->buildUrl(ApiMethod::GET_RECORDING_TEXT_TRACKS, $getRecordingTextTracksParameters->getHTTPQuery());
+    }
+
+    public function getPutRecordingTextTrackUrl(PutRecordingTextTrackParameters $putRecordingTextTrackParams): string
+    {
+        return $this->buildUrl(ApiMethod::PUT_RECORDING_TEXT_TRACK, $putRecordingTextTrackParams->getHTTPQuery());
+    }
+
+    /**
+     * BBB-Server < 3.0 can only use SHA1 in the handling with hooks.
+     * Please configure the HASH_ALGO_FOR_HOOKS environment variable in case SHA1 shall not be used.
+     *
+     * @see https://github.com/bigbluebutton/bbb-webhooks/issues/30
+     */
+    public function getHooksCreateUrl(HooksCreateParameters $hookCreateParams): string
+    {
+        return $this->buildHookUrl(ApiMethod::HOOKS_CREATE, $hookCreateParams->getHTTPQuery());
+    }
+
+    /**
+     * BBB-Server < 3.0 can only use SHA1 in the handling with hooks.
+     * Please configure the HASH_ALGO_FOR_HOOKS environment variable in case SHA1 shall not be used.
+     *
+     * @see https://github.com/bigbluebutton/bbb-webhooks/issues/30
+     */
+    public function getHooksListUrl(): string
+    {
+        return $this->buildHookUrl(ApiMethod::HOOKS_LIST);
+    }
+
+    /**
+     * BBB-Server < 3.0 can only use SHA1 in the handling with hooks.
+     * Please configure the HASH_ALGO_FOR_HOOKS environment variable in case SHA1 shall not be used.
+     *
+     * @see https://github.com/bigbluebutton/bbb-webhooks/issues/30
+     */
+    public function getHooksDestroyUrl(HooksDestroyParameters $hooksDestroyParams): string
+    {
+        return $this->buildHookUrl(ApiMethod::HOOKS_DESTROY, $hooksDestroyParams->getHTTPQuery());
+    }
+
+    /**
+     * Builds a hooks URL with the hooks-specific hashing algorithm, restoring
+     * the previously configured algorithm afterwards - also in case of an
+     * exception during the URL build.
+     */
+    private function buildHookUrl(string $method, string $params = ''): string
+    {
+        $previousAlgorithm = $this->getHashingAlgorithm();
+
+        $this->setHashingAlgorithm($this->getHashingAlgorithmForHooks());
+
+        try {
+            return $this->buildUrl($method, $params);
+        } finally {
+            $this->setHashingAlgorithm($previousAlgorithm);
+        }
+    }
+
+    /**
+     *  This function defines the algorithm to be used for hooks.
+     *
+     *  This function will evolve in phases:
+     *    - Phase 1: SHA1 as default                 (or superseded by environment-variable HASH_ALGO_FOR_HOOKS).
+     *    - Phase 2: same algo everywhere as default (or superseded by environment-variable HASH_ALGO_FOR_HOOKS and which will trigger in this case a deprecation-warning).
+     *    - Phase 3: removal of this function, adaptation of the other hook-functions in this class and remove the use of env-variable HASH_ALGO_FOR_HOOKS.
+     *
+     *  Background:
+     *  BB-Server below 3.0 are using SHA1-algorithm for hooks only, but allow higher algorithms for
+     *  other APIs. This is creating issues since the algorithm of choice is used in the urlBuilder-class
+     *  for the hashing of the checksum. This is resulting in denied requests for hooks if the algorithm
+     *  of choice is not SHA1.
+     *  The current planning for BBB-Server 3.0 (and on) is to align the hashing algorithm for hooks with
+     *  the rest of the system. Having this in mind two situations need to be covered:
+     *    - BBB-Server <  3.0 ==> SHA1 is default for hooks (even rest is using other algorithm)
+     *    - BBB-Server >= 3.0 ==> same algorithm everywhere (according to planning).
+     *
+     * @deprecated This function will evolve in phases and will later disappear
+     */
+    private function getHashingAlgorithmForHooks(): HashingAlgorithm
+    {
+        // ---------------------------------- phase 1 ----------------------------------
+        // in case this env-variable is not set, SHA1 shall be used as default (phase 1)
+        $hashValue = getenv('HASH_ALGO_FOR_HOOKS') ?: HashingAlgorithm::SHA_1->value;
+
+        return HashingAlgorithm::from($hashValue);
+        // ---------------------------------- phase 1 ----------------------------------
+
+        /* ---------------------------------- phase 2 ----------------------------------
+         * if (getenv('HASH_ALGO_FOR_HOOKS')) {
+         *   trigger_error('The environment variable HASH_ALGO_FOR_HOOKS will be removed soon. This will require you to run a BBB-Server 3.0 or higher!', E_USER_DEPRECATED);
+         * }
+         *
+         * // in case this env-variable is not set, the 'normal' algorithm shall be used as default (phase 2)
+         * return getenv('HASH_ALGO_FOR_HOOKS') ?: $this->getHashingAlgorithm();
+         *
+         * ---------------------------------- phase 2 ---------------------------------- */
+    }
+}

@@ -1,0 +1,448 @@
+<?php
+
+/*
+ * BigBlueButton open source conferencing system - https://www.bigbluebutton.org/.
+ *
+ * Copyright (c) 2016-2026 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ *
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace BigBlueButton\Parameters;
+
+use BigBlueButton\Attribute\ApiParameterMapper;
+use BigBlueButton\Enum\MeetingLayout;
+use BigBlueButton\Enum\Role;
+
+/**
+ * Class JoinMeetingParameters.
+ */
+class JoinMeetingParameters extends UserDataParameters
+{
+    private string $meetingId;
+
+    private string $username;
+
+    /**
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    private ?string $password = null;
+
+    private ?string $userId = null;
+
+    private ?string $webVoiceConf = null;
+
+    private ?float $creationTime = null;
+
+    private ?string $avatarURL = null;
+
+    private ?bool $redirect = null;
+
+    /**
+     * @var array<string, string>
+     */
+    private array $customParameters = [];
+
+    private ?Role $role = null;
+
+    private ?bool $excludeFromDashboard = null;
+
+    private ?bool $guest = null;
+
+    private ?bool $auth = null;
+
+    /**
+     * @deprecated since 3.0.0
+     */
+    private ?MeetingLayout $defaultLayout = null;
+
+    private ?string $errorRedirectUrl    = null;
+    private ?string $webcamBackgroundURL = null;
+
+    private ?bool $bot                    = null;
+    private ?MeetingLayout $enforceLayout = null;
+    private ?string $logoutURL            = null;
+    private ?string $firstName            = null;
+    private ?string $lastName             = null;
+
+    private ?string $existingUserId      = null;
+    private ?string $replaceSessionToken = null;
+    private ?string $sessionName         = null;
+
+    public function __construct(string $meetingId, string $username, Role|string $passwordOrRole)
+    {
+        $this->meetingId = $meetingId;
+        $this->username  = $username;
+
+        if ($passwordOrRole instanceof Role) {
+            $this->role = $passwordOrRole;
+        } else {
+            $this->password = $passwordOrRole;
+        }
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingID')]
+    public function getMeetingId(): ?string
+    {
+        return $this->meetingId;
+    }
+
+    public function setMeetingId(string $meetingId): self
+    {
+        $this->meetingId = $meetingId;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'fullName')]
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    #[ApiParameterMapper(attributeName: 'password')]
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    /**
+     *@deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    public function setPassword(?string $password): self
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'userID')]
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(string $userId): self
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'webVoiceConf')]
+    public function getWebVoiceConf(): ?string
+    {
+        return $this->webVoiceConf;
+    }
+
+    /**
+     * @deprecated since 4.0 (obsolete; set a custom voice extension for the old Flash client, value was never read)
+     */
+    public function setWebVoiceConf(string $webVoiceConf): self
+    {
+        $this->webVoiceConf = $webVoiceConf;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'createTime')]
+    public function getCreationTime(): ?float
+    {
+        return $this->creationTime;
+    }
+
+    public function setCreationTime(float $creationTime): self
+    {
+        $this->creationTime = $creationTime;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'avatarURL')]
+    public function getAvatarURL(): ?string
+    {
+        return $this->avatarURL;
+    }
+
+    public function setAvatarURL(string $avatarURL): self
+    {
+        $this->avatarURL = $avatarURL;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'redirect')]
+    public function isRedirect(): ?bool
+    {
+        return $this->redirect;
+    }
+
+    public function setRedirect(bool $redirect): self
+    {
+        $this->redirect = $redirect;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'role')]
+    public function getRole(): ?Role
+    {
+        return $this->role;
+    }
+
+    public function setRole(Role $role): self
+    {
+        $this->role = $role;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'excludeFromDashboard')]
+    public function isExcludeFromDashboard(): ?bool
+    {
+        return $this->excludeFromDashboard;
+    }
+
+    public function setExcludeFromDashboard(bool $excludeFromDashboard): self
+    {
+        $this->excludeFromDashboard = $excludeFromDashboard;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'guest')]
+    public function isGuest(): ?bool
+    {
+        return $this->guest;
+    }
+
+    public function setGuest(bool $guest): self
+    {
+        $this->guest = $guest;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'auth')]
+    public function isAuth(): ?bool
+    {
+        return $this->auth;
+    }
+
+    /**
+     * Marks the user as authenticated for the guest-policy evaluation.
+     *
+     * With guestPolicy=ALWAYS_ACCEPT_AUTH only authenticated users are admitted.
+     * A user that joins without the guest-parameter is treated as authenticated
+     * by the BBB-Server anyway; an explicit auth=true lets a guest-flagged user
+     * pass the policy check.
+     */
+    public function setAuth(bool $auth): self
+    {
+        $this->auth = $auth;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated since 3.0.0
+     */
+    #[ApiParameterMapper(attributeName: 'defaultLayout')]
+    public function getDefaultLayout(): ?MeetingLayout
+    {
+        return $this->defaultLayout;
+    }
+
+    /**
+     * @deprecated since 3.0.0, use "userdata-bbb_default_layout" instead
+     */
+    public function setDefaultLayout(MeetingLayout $defaultLayout): self
+    {
+        $this->defaultLayout = $defaultLayout;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'errorRedirectUrl')]
+    public function getErrorRedirectUrl(): ?string
+    {
+        return $this->errorRedirectUrl;
+    }
+
+    public function setErrorRedirectUrl(string $errorRedirectUrl): self
+    {
+        $this->errorRedirectUrl = $errorRedirectUrl;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'webcamBackgroundURL')]
+    public function getWebcamBackgroundURL(): ?string
+    {
+        return $this->webcamBackgroundURL;
+    }
+
+    public function setWebcamBackgroundURL(string $webcamBackgroundURL): self
+    {
+        $this->webcamBackgroundURL = $webcamBackgroundURL;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'bot')]
+    public function isBot(): ?bool
+    {
+        return $this->bot;
+    }
+
+    public function setBot(bool $bot): self
+    {
+        $this->bot = $bot;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'enforceLayout')]
+    public function getEnforceLayout(): ?MeetingLayout
+    {
+        return $this->enforceLayout;
+    }
+
+    public function setEnforceLayout(MeetingLayout|string $enforceLayout): self
+    {
+        $this->enforceLayout = \is_string($enforceLayout) ? MeetingLayout::from($enforceLayout) : $enforceLayout;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'existingUserID')]
+    public function getExistingUserId(): ?string
+    {
+        return $this->existingUserId;
+    }
+
+    /**
+     * The user id of an already joined user to re-join the meeting as this
+     * user (e.g. with a new session). Used by the URLs returned by getJoinUrl.
+     */
+    public function setExistingUserId(string $existingUserId): self
+    {
+        $this->existingUserId = $existingUserId;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'replaceSessionToken')]
+    public function getReplaceSessionToken(): ?string
+    {
+        return $this->replaceSessionToken;
+    }
+
+    /**
+     * The session token that shall be replaced by this new session. Requires
+     * existingUserID to be set. Used by the URLs returned by getJoinUrl with
+     * replaceSession=true.
+     */
+    public function setReplaceSessionToken(string $replaceSessionToken): self
+    {
+        $this->replaceSessionToken = $replaceSessionToken;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'sessionName')]
+    public function getSessionName(): ?string
+    {
+        return $this->sessionName;
+    }
+
+    /**
+     * A descriptive name for the new session (e.g. "Mobile Device Transfer"),
+     * visible in the user's session history. Requires existingUserID to be set.
+     */
+    public function setSessionName(string $sessionName): self
+    {
+        $this->sessionName = $sessionName;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'logoutURL')]
+    public function getLogoutURL(): ?string
+    {
+        return $this->logoutURL;
+    }
+
+    public function setLogoutURL(string $logoutURL): self
+    {
+        $this->logoutURL = $logoutURL;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'firstName')]
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lastName')]
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function setCustomParameter(string $paramName, string $paramValue): self
+    {
+        $this->customParameters[$paramName] = $paramValue;
+
+        return $this;
+    }
+
+    public function getHTTPQuery(): string
+    {
+        $queries = $this->toApiDataArray();
+
+        foreach ($this->customParameters as $key => $value) {
+            $queries[$key] = $value;
+        }
+
+        $this->buildUserData($queries);
+
+        return $this->buildHTTPQuery($queries);
+    }
+}

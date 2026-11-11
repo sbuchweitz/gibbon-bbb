@@ -1,0 +1,156 @@
+<?php
+
+/*
+ * BigBlueButton open source conferencing system - https://www.bigbluebutton.org/.
+ *
+ * Copyright (c) 2016-2026 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ *
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace BigBlueButton\Parameters;
+
+use BigBlueButton\Attribute\ApiParameterMapper;
+
+/**
+ * Class PutRecordingTextTrackParameters.
+ */
+class PutRecordingTextTrackParameters extends BaseParameters
+{
+    private string $recordId;
+
+    private string $kind;
+
+    private string $lang;
+
+    private string $label;
+
+    private ?string $trackFilePath = null;
+
+    private ?string $trackFileName = null;
+
+    /**
+     * PutRecordingTextTrackParameters constructor.
+     */
+    public function __construct(string $recordId, string $kind, string $lang, string $label)
+    {
+        $this->recordId = $recordId;
+        $this->kind     = $kind;
+        $this->lang     = $lang;
+        $this->label    = $label;
+    }
+
+    /**
+     * The caption track file to upload, provided as multipart form-data field
+     * "file" (the file itself is not part of the checksum-secured query).
+     */
+    public function setTrackFile(string $filePath, ?string $fileName = null): self
+    {
+        if (!is_file($filePath) || !is_readable($filePath)) {
+            throw new \InvalidArgumentException(sprintf('Track file "%s" does not exist or is not readable.', $filePath));
+        }
+
+        $this->trackFilePath = $filePath;
+        $this->trackFileName = $fileName ?? basename($filePath);
+
+        return $this;
+    }
+
+    public function getTrackFilePath(): ?string
+    {
+        return $this->trackFilePath;
+    }
+
+    public function getTrackFileName(): ?string
+    {
+        return $this->trackFileName;
+    }
+
+    /**
+     * The caption track as cURL-file to be sent as multipart form-data field "file".
+     *
+     * @throws \RuntimeException when no track file was set before
+     */
+    public function getTrackFile(): \CURLFile
+    {
+        if (null === $this->trackFilePath) {
+            throw new \RuntimeException('No track file set. Use setTrackFile() before uploading a text track.');
+        }
+
+        return new \CURLFile($this->trackFilePath, $this->getTrackFileMimeType(), (string) $this->trackFileName);
+    }
+
+    #[ApiParameterMapper(attributeName: 'recordID')]
+    public function getRecordId(): ?string
+    {
+        return $this->recordId;
+    }
+
+    public function setRecordId(string $recordId): self
+    {
+        $this->recordId = $recordId;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'kind')]
+    public function getKind(): ?string
+    {
+        return $this->kind;
+    }
+
+    public function setKind(string $kind): self
+    {
+        $this->kind = $kind;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lang')]
+    public function getLang(): ?string
+    {
+        return $this->lang;
+    }
+
+    public function setLang(string $lang): self
+    {
+        $this->lang = $lang;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'label')]
+    public function getLabel(): ?string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label): self
+    {
+        $this->label = $label;
+
+        return $this;
+    }
+
+    /**
+     * Determines the mime type of the track file by its extension.
+     */
+    private function getTrackFileMimeType(): string
+    {
+        return match (mb_strtolower(pathinfo((string) $this->trackFilePath, PATHINFO_EXTENSION))) {
+            'vtt'   => 'text/vtt',
+            'srt'   => 'text/plain',
+            default => 'application/octet-stream',
+        };
+    }
+}

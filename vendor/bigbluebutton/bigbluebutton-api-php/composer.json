@@ -1,0 +1,94 @@
+{
+  "name": "bigbluebutton/bigbluebutton-api-php",
+  "type": "library",
+  "description": "BigBlueButton PHP API Library for PHP",
+  "keywords": [
+    "bigbluebutton",
+    "bbb",
+    "api"
+  ],
+  "homepage": "https://bigbluebutton.org/",
+  "license": "LGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Ghazi Triki",
+      "email": "ghazi.triki@riadvice.tn",
+      "role": "Developer"
+    },
+    {
+      "name": "Tim Korn",
+      "email": "korn@aufKurs.de",
+      "role": "Developer"
+    }
+  ],
+  "repositories": {
+    "packagist": {
+      "url": "https://packagist.org",
+      "type": "composer"
+    }
+  },
+  "require": {
+    "php": ">=8.2",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-simplexml": "*"
+  },
+  "require-dev": {
+    "bmitch/churn-php": "^1.7",
+    "captainhook/captainhook": "^5.23",
+    "captainhook/hook-installer": "^1.0",
+    "fakerphp/faker": "^1.23",
+    "friendsofphp/php-cs-fixer": "^3.54",
+    "nunomaduro/phpinsights": "^2.11",
+    "nyholm/psr7": "^1.8",
+    "php-http/curl-client": "^2.4",
+    "phpstan/phpstan": "^1.10",
+    "phpunit/php-code-coverage": "^10.1",
+    "phpunit/phpunit": "^10.5",
+    "psr/http-client": "^1.0",
+    "psr/http-factory": "^1.1",
+    "squizlabs/php_codesniffer": "^3.9",
+    "vlucas/phpdotenv": "^5.6",
+    "wapmorgan/php-deprecation-detector": "^2.0"
+  },
+  "suggest": {
+    "psr/http-client": "To inject your own PSR-18 http client via BigBlueButton::createWithHttpClient()",
+    "psr/http-factory": "To inject your own PSR-17 factories via BigBlueButton::createWithHttpClient()"
+  },
+  "scripts": {
+    "code-check": "./vendor/bin/phpstan analyse",
+    "code-test": "./vendor/bin/phpunit",
+    "code-coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-html ./var/coverage/",
+    "code-fix": "PHP_CS_FIXER_IGNORE_ENV=1 ./vendor/bin/php-cs-fixer fix --allow-risky yes",
+    "sniffer": "./vendor/bin/phpcs src/",
+    "phpinsights": "./vendor/bin/phpinsights",
+    "phpdd": "./vendor/bin/phpdd --target 8.0 src/",
+    "churn": "./vendor/bin/churn run src/"
+  },
+  "options": {
+    "symlink": false
+  },
+  "autoload": {
+    "psr-4": {
+      "BigBlueButton\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "BigBlueButton\\": [
+        "src",
+        "dev",
+        "tests"
+      ]
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "captainhook/captainhook-phar": true,
+      "captainhook/hook-installer": true
+    }
+  }
+}

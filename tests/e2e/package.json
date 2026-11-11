@@ -1,0 +1,12 @@
+{
+  "name": "bigbluebutton-gibbon-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install-gibbon": "node scripts/install-gibbon.mjs",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}

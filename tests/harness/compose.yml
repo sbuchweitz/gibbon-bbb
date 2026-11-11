@@ -1,0 +1,69 @@
+# Test harness: Gibbon + MariaDB + mock BigBlueButton.
+#   cp tests/harness/.env.example tests/harness/.env   # then set GIBBON_URL and BBB_PUBLIC_URL
+#   docker compose -f tests/harness/compose.yml up -d --build
+# Gibbon is published on GIBBON_PORT (2005), the mock BBB on BBB_PORT (2006).
+name: bbb-harness
+
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: gibbon
+      MARIADB_USER: gibbon
+      MARIADB_PASSWORD: gibbon
+    command: ["--character-set-server=utf8mb3", "--collation-server=utf8mb3_general_ci", "--sql-mode=NO_ENGINE_SUBSTITUTION"]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  gibbon:
+    build:
+      context: ./gibbon
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.4}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${GIBBON_PORT:-2005}:80"
+    volumes:
+      # The module under test, mounted where Gibbon expects it.
+      - ${MODULE_DIR:-../..}:/var/www/html/modules/BigBlueButton:ro
+
+  # PHPUnit runner (not started by `up`):
+  #   docker compose -f tests/harness/compose.yml run --rm tests php tools/vendor/bin/phpunit
+  tests:
+    profiles: ["tools"]
+    build:
+      context: ./php-test
+      args:
+        PHP_VERSION: ${TEST_PHP_VERSION:-8.2}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      BBB_TEST_DB_DSN: "mysql:host=db;dbname=bbb_test;charset=utf8mb4"
+      BBB_TEST_DB_USER: root
+      BBB_TEST_DB_PASSWORD: root
+      BBB_MOCK_URL: ${BBB_PUBLIC_URL:?set BBB_PUBLIC_URL in tests/harness/.env}
+      BBB_SECRET: ${BBB_SECRET:-mock-secret-0123456789}
+    volumes:
+      - ${MODULE_DIR:-../..}:/module
+
+  mock-bbb:
+    image: node:22-alpine
+    working_dir: /app
+    command: ["node", "server.mjs"]
+    environment:
+      PORT: "8080"
+      BBB_SECRET: ${BBB_SECRET:-mock-secret-0123456789}
+      PUBLIC_URL: ${BBB_PUBLIC_URL:?set BBB_PUBLIC_URL in tests/harness/.env}
+      PLAYBACK_HOST: ${BBB_PLAYBACK_HOST:-}
+      ALLOW_REQUESTS_WITHOUT_SESSION: ${BBB_ALLOW_REQUESTS_WITHOUT_SESSION:-false}
+    ports:
+      - "${BBB_PORT:-2006}:8080"
+    volumes:
+      - ./mock-bbb:/app:ro

@@ -1,0 +1,2324 @@
+<?php
+
+/*
+ * BigBlueButton open source conferencing system - https://www.bigbluebutton.org/.
+ *
+ * Copyright (c) 2016-2026 BigBlueButton Inc. and by respective authors (see below).
+ *
+ * This program is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU Lesser General Public License as published by the Free Software
+ * Foundation; either version 3.0 of the License, or (at your option) any later
+ * version.
+ *
+ * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with BigBlueButton; if not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace BigBlueButton\Parameters;
+
+use BigBlueButton\Attribute\ApiParameterMapper;
+use BigBlueButton\Core\ClientSettingsOverride;
+use BigBlueButton\Enum\Feature;
+use BigBlueButton\Enum\GuestPolicy;
+use BigBlueButton\Enum\MeetingLayout;
+use BigBlueButton\Enum\PresenterPolicy;
+
+/**
+ * Class CreateMeetingParameters.
+ */
+class CreateMeetingParameters extends MetaParameters
+{
+    use DocumentableTrait;
+
+    private string $meetingId;
+
+    private string $meetingName;
+
+    /**
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    private ?string $attendeePassword = null;
+
+    /**
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    private ?string $moderatorPassword = null;
+
+    private ?string $dialNumber = null;
+
+    private ?int $voiceBridge = null;
+
+    private ?string $webVoice = null;
+
+    private ?string $logoutUrl = null;
+
+    private ?int $maxParticipants = null;
+
+    private ?bool $record = null;
+
+    private ?bool $autoStartRecording = null;
+
+    private ?bool $allowStartStopRecording = null;
+
+    private ?int $duration = null;
+
+    private ?string $welcomeMessage = null;
+
+    private ?string $moderatorOnlyMessage = null;
+
+    private ?bool $webcamsOnlyForModerator = null;
+
+    private ?string $logo = null;
+
+    private ?string $copyright = null;
+
+    private ?bool $muteOnStart = null;
+
+    private ?bool $lockSettingsDisableCam = null;
+
+    private ?bool $lockSettingsDisableMic = null;
+
+    private ?bool $lockSettingsDisablePrivateChat = null;
+
+    private ?bool $lockSettingsDisablePublicChat = null;
+
+    private ?bool $lockSettingsDisableNotes = null;
+
+    private ?bool $lockSettingsHideUserList = null;
+
+    private ?bool $lockSettingsLockedLayout = null;
+
+    private ?bool $lockSettingsLockOnJoin = null;
+
+    private ?bool $lockSettingsLockOnJoinConfigurable = null;
+
+    private ?bool $lockSettingsHideViewersCursor = null;
+
+    private ?bool $allowModsToUnmuteUsers = null;
+
+    private ?bool $allowModsToEjectCameras = null;
+
+    private ?bool $allowRequestsWithoutSession = null;
+
+    private ?bool $isBreakout = null;
+
+    private ?string $parentMeetingId = null;
+
+    private ?int $sequence = null;
+
+    private ?bool $freeJoin = null;
+
+    private ?GuestPolicy $guestPolicy = null;
+
+    private ?string $bannerText = null;
+
+    private ?string $bannerColor = null;
+
+    /**
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    private ?bool $learningDashboardEnabled = null;
+
+    /**
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    private ?bool $virtualBackgroundsDisabled = null;
+
+    private ?int $learningDashboardCleanupDelayInMinutes = null;
+
+    private ?int $endWhenNoModeratorDelayInMinutes = null;
+
+    private ?bool $endWhenNoModerator = null;
+
+    private ?bool $meetingKeepEvents = null;
+
+    /**
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    private ?bool $breakoutRoomsEnabled = null;
+
+    private ?bool $breakoutRoomsRecord = null;
+
+    private ?bool $breakoutRoomsPrivateChatEnabled = null;
+
+    private ?string $meetingEndedURL = null;
+
+    private ?MeetingLayout $meetingLayout = null;
+
+    private ?int $userCameraCap = null;
+
+    private ?int $meetingCameraCap = null;
+
+    private ?int $meetingExpireIfNoUserJoinedInMinutes = null;
+
+    private ?int $meetingExpireWhenLastUserLeftInMinutes = null;
+
+    private ?string $preUploadedPresentation = null;
+
+    private ?string $preUploadedPresentationName = null;
+
+    private ?bool $preUploadedPresentationOverrideDefault = null;
+
+    /**
+     * @var Feature[]
+     */
+    private array $disabledFeatures = [];
+
+    /**
+     * @var Feature[]
+     */
+    private array $disabledFeaturesExclude = [];
+
+    private ?bool $recordFullDurationMedia = null;
+
+    /**
+     * @var array<int, array<string, mixed>>
+     */
+    private array $breakoutRoomsGroups = [];
+
+    private ?bool $notifyRecordingIsOn = null;
+
+    private ?string $presentationUploadExternalUrl = null;
+
+    private ?string $presentationUploadExternalDescription = null;
+
+    private ?bool $allowPromoteGuestToModerator = null;
+
+    private ?bool $allowOverrideClientSettingsOnCreateCall = null;
+
+    private ?ClientSettingsOverride $clientSettingsOverride = null;
+
+    private ?string $loginURL = null;
+
+    // New properties
+    private ?string $pluginManifests = null;
+
+    private ?string $pluginManifestsFetchUrl = null;
+
+    private ?bool $presentationConversionCacheEnabled = null;
+
+    private ?int $maxNumPages = null;
+
+    private ?bool $multiUserWhiteboardEnabled = null;
+
+    private ?int $maxPinnedCameras = null;
+
+    private ?string $darkLogo = null;
+
+    private ?int $logoutTimer = null;
+
+    private ?string $cameraBridge = null;
+
+    private ?string $screenShareBridge = null;
+
+    private ?string $audioBridge = null;
+
+    private ?bool $lockSettingsHideViewersAnnotation = null;
+
+    private ?bool $breakoutRoomsCaptureSlides = null;
+
+    private ?bool $breakoutRoomsCaptureNotes = null;
+
+    private ?string $breakoutRoomsCaptureSlidesFilename = null;
+
+    private ?string $breakoutRoomsCaptureNotesFilename = null;
+
+    /** @var array<string, mixed> */
+    private array $pluginMeta = [];
+
+    private ?string $sharedNotesEditor = null;
+
+    private ?string $sharedNotesInitialContentJsonUrl = null;
+
+    private ?string $clientSettingsOverrideJsonUrl = null;
+
+    private ?string $sharedNotesInitialContentJson = null;
+
+    private ?string $sharedNotesInitialContentMarkdown = null;
+
+    private ?string $sharedNotesInitialContentMarkdownUrl = null;
+
+    private ?string $sharedNotesInitialContentMarkdownModule = null;
+
+    private ?string $notifyRecordingAppend = null;
+
+    private ?bool $requireUserConsentBeforeUnmuting = null;
+
+    private ?PresenterPolicy $lockSettingsPresenterPolicy = null;
+
+    /**
+     * CreateMeetingParameters constructor.
+     */
+    public function __construct(string $meetingId, string $meetingName)
+    {
+        $this->meetingId   = $meetingId;
+        $this->meetingName = $meetingName;
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingID')]
+    public function getMeetingId(): ?string
+    {
+        return $this->meetingId;
+    }
+
+    /**
+     * A meeting ID that can be used to identify this meeting by the 3rd-party application.
+     *
+     * This must be unique to the server that you are calling: different active meetings can not have the same meeting
+     * ID. If you supply a non-unique meeting ID (a meeting is already in progress with the same meeting ID), then if
+     * the other parameters in the create call are identical, the create call will succeed (but will receive a warning
+     * message in the response). The create call is idempotent: calling multiple times does not have any side effect.
+     * This enables a 3rd-party applications to avoid checking if the meeting is running and always call create before
+     * joining each user.
+     *
+     * Meeting IDs should only contain upper/lower ASCII letters, numbers, dashes, or underscores. A good choice for
+     * the meeting ID is to generate a GUID value as this all but guarantees that different meetings will not have the
+     * same meetingID.
+     */
+    public function setMeetingId(string $meetingId): self
+    {
+        $this->meetingId = $meetingId;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'name')]
+    public function getMeetingName(): ?string
+    {
+        return $this->meetingName;
+    }
+
+    /**
+     * A name for the meeting. This is now required as of BigBlueButton 2.4.
+     */
+    public function setMeetingName(string $meetingName): self
+    {
+        $this->meetingName = $meetingName;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    #[ApiParameterMapper(attributeName: 'attendeePW')]
+    public function getAttendeePassword(): ?string
+    {
+        return $this->attendeePassword;
+    }
+
+    /**
+     * The password that the join URL can later provide as its password parameter to indicate the user will join as a
+     * viewer. If no attendeePW is provided, the create call will return a randomly generated attendeePW password for
+     * the meeting.
+     *
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    public function setAttendeePassword(string $attendeePassword): self
+    {
+        $this->attendeePassword = $attendeePassword;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    #[ApiParameterMapper(attributeName: 'moderatorPW')]
+    public function getModeratorPassword(): ?string
+    {
+        return $this->moderatorPassword;
+    }
+
+    /**
+     * The password that will join URL can later provide as its password parameter to indicate the user will as a
+     * moderator. if no moderatorPW is provided, create will return a randomly generated moderatorPW password for
+     * the meeting.
+     *
+     * @deprecated Password-string replaced by an Enum\Role-constant in JoinMeetingParameters::__construct()
+     */
+    public function setModeratorPassword(string $moderatorPassword): self
+    {
+        $this->moderatorPassword = $moderatorPassword;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'dialNumber')]
+    public function getDialNumber(): ?string
+    {
+        return $this->dialNumber;
+    }
+
+    /**
+     * The dial access number that participants can call in using regular phone. You can set a default dial number
+     * via defaultDialAccessNumber in 'bigbluebutton.properties'.
+     */
+    public function setDialNumber(string $dialNumber): self
+    {
+        $this->dialNumber = $dialNumber;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'voiceBridge')]
+    public function getVoiceBridge(): ?int
+    {
+        return $this->voiceBridge;
+    }
+
+    /**
+     * Voice conference number for the FreeSWITCH voice conference associated with this meeting. This must be a 5-digit
+     * number in the range 10000 to 99999. If you add a phone number to your BigBlueButton server, This parameter sets
+     * the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter. If you want
+     * to change this range, edit FreeSWITCH dialplan and defaultNumDigitsForTelVoice of bigbluebutton.properties.
+     *
+     * The voiceBridge number must be different for every meeting.
+     *
+     * This parameter is optional. If you do not specify a voiceBridge number, then BigBlueButton will assign a random
+     * unused number for the meeting.
+     *
+     * If do you pass a voiceBridge number, then you must ensure that each meeting has a unique voiceBridge number;
+     * otherwise, reusing same voiceBridge number for two different meetings will cause users from one meeting to appear
+     * as phone users in the other, which will be very confusing to users in both meetings.
+     */
+    public function setVoiceBridge(int $voiceBridge): self
+    {
+        $this->voiceBridge = $voiceBridge;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'webVoice')]
+    public function getWebVoice(): ?string
+    {
+        return $this->webVoice;
+    }
+
+    /**
+     * @deprecated since 4.0 (obsolete; selected a separate voice conference for the old Flash client)
+     */
+    public function setWebVoice(string $webVoice): self
+    {
+        $this->webVoice = $webVoice;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'logoutURL')]
+    public function getLogoutUrl(): ?string
+    {
+        return $this->logoutUrl;
+    }
+
+    /**
+     * The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged
+     * out message’. This overrides the value for bigbluebutton.web.logoutURL in bigbluebutton.properties.
+     */
+    public function setLogoutUrl(string $logoutUrl): self
+    {
+        $this->logoutUrl = $logoutUrl;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'maxParticipants')]
+    public function getMaxParticipants(): ?int
+    {
+        return $this->maxParticipants;
+    }
+
+    /**
+     * Set the maximum number of users allowed to join the conference at the same time.
+     */
+    public function setMaxParticipants(int $maxParticipants): self
+    {
+        $this->maxParticipants = $maxParticipants;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'record')]
+    public function isRecorded(): ?bool
+    {
+        return $this->record;
+    }
+
+    /**
+     * Setting ‘record=true’ instructs the BigBlueButton server to record the media and events in the session for
+     * later playback. The default is false.
+     *
+     * In order for a playback file to be generated, a moderator must click the Start/Stop Recording button at least
+     * once during the session; otherwise, in the absence of any recording marks, the record and playback scripts will
+     * not generate a playback file. See also the autoStartRecording and allowStartStopRecording parameters in
+     * 'bigbluebutton.properties'.
+     */
+    public function setRecord(bool $record): self
+    {
+        $this->record = $record;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'autoStartRecording')]
+    public function isAutoStartRecording(): ?bool
+    {
+        return $this->autoStartRecording;
+    }
+
+    /**
+     * Whether to automatically start recording when first user joins (default false).
+     *
+     * When this parameter is true, the recording UI in BigBlueButton will be initially active. Moderators in the
+     * session can still pause and restart recording using the UI control.
+     *
+     * NOTE: Don’t pass autoStartRecording=false and allowStartStopRecording=false - the moderator won’t be able to
+     * start recording!
+     */
+    public function setAutoStartRecording(bool $autoStartRecording): self
+    {
+        $this->autoStartRecording = $autoStartRecording;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'allowStartStopRecording')]
+    public function isAllowStartStopRecording(): ?bool
+    {
+        return $this->allowStartStopRecording;
+    }
+
+    /**
+     * Allow the user to start/stop recording (default true).
+     *
+     * If you set both allowStartStopRecording=false and autoStartRecording=true, then the entire length of the
+     * session will be recorded, and the moderators in the session will not be able to pause/resume the recording.
+     */
+    public function setAllowStartStopRecording(bool $allowStartStopRecording): self
+    {
+        $this->allowStartStopRecording = $allowStartStopRecording;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'duration')]
+    public function getDuration(): ?int
+    {
+        return $this->duration;
+    }
+
+    /**
+     * The maximum length (in minutes) for the meeting.
+     *
+     * Normally, the BigBlueButton server will end the meeting when either (a) the last person leaves (it takes a
+     * minute or two for the server to clear the meeting from memory) or when the server receives an end API request
+     * with the associated meetingID (everyone is kicked and the meeting is immediately cleared from memory).
+     *
+     * BigBlueButton begins tracking the length of a meeting when it is created. If duration contains a non-zero
+     * value, then when the length of the meeting exceeds the duration value the server will immediately end the
+     * meeting (equivalent to receiving an end API request at that moment).
+     */
+    public function setDuration(int $duration): self
+    {
+        $this->duration = $duration;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'welcome')]
+    public function getWelcomeMessage(): ?string
+    {
+        return $this->welcomeMessage;
+    }
+
+    /**
+     * A welcome message that gets displayed on the chat window when the participant joins. You can include keywords
+     * (%%CONFNAME%%, %%DIALNUM%%, %%CONFNUM%%) which will be substituted automatically.
+     *
+     * This parameter overrides the default 'defaultWelcomeMessage' in 'bigbluebutton.properties'.
+     */
+    public function setWelcomeMessage(string $welcomeMessage): self
+    {
+        $this->welcomeMessage = $welcomeMessage;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'moderatorOnlyMessage')]
+    public function getModeratorOnlyMessage(): ?string
+    {
+        return $this->moderatorOnlyMessage;
+    }
+
+    /**
+     * Display a message to all moderators in the public chat.
+     *
+     * The value is interpreted in the same way as the welcome parameter.
+     */
+    public function setModeratorOnlyMessage(string $message): self
+    {
+        $this->moderatorOnlyMessage = $message;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'webcamsOnlyForModerator')]
+    public function isWebcamsOnlyForModerator(): ?bool
+    {
+        return $this->webcamsOnlyForModerator;
+    }
+
+    /**
+     * Setting webcamsOnlyForModerator=true will cause all webcams shared by viewers during this meeting to
+     * only appear for moderators.
+     *
+     * since 1.1
+     */
+    public function setWebcamsOnlyForModerator(bool $webcamsOnlyForModerator): self
+    {
+        $this->webcamsOnlyForModerator = $webcamsOnlyForModerator;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'logo')]
+    public function getLogo(): ?string
+    {
+        return $this->logo;
+    }
+
+    /**
+     * Pass a URL to an image which will then be visible in the area above the participants list
+     * if displayBrandingArea is set to true in bbb-html5's configuration.
+     */
+    public function setLogo(string $logo): self
+    {
+        $this->logo = $logo;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'bannerText')]
+    public function getBannerText(): ?string
+    {
+        return $this->bannerText;
+    }
+
+    /**
+     * Will set the banner text in the client.
+     *
+     * @since 2.0
+     */
+    public function setBannerText(string $bannerText): self
+    {
+        $this->bannerText = $bannerText;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'bannerColor')]
+    public function getBannerColor(): ?string
+    {
+        return $this->bannerColor;
+    }
+
+    /**
+     * Will set the banner background color in the client. The required format is color hex #FFFFFF.
+     *
+     * @since 2.0
+     */
+    public function setBannerColor(string $bannerColor): self
+    {
+        $this->bannerColor = $bannerColor;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    #[ApiParameterMapper(attributeName: 'learningDashboardEnabled')]
+    public function isLearningDashboardEnabled(): ?bool
+    {
+        return $this->learningDashboardEnabled;
+    }
+
+    /**
+     * Default learningDashboardEnabled=true. When this option is enabled BigBlueButton generates a Dashboard
+     * where moderators can view a summary of the activities of the meeting.
+     *
+     * Default: true
+     *
+     * @since 2.4
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    public function setLearningDashboardEnabled(bool $learningDashboardEnabled): self
+    {
+        $this->learningDashboardEnabled = $learningDashboardEnabled;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    #[ApiParameterMapper(attributeName: 'virtualBackgroundsDisabled')]
+    public function isVirtualBackgroundsDisabled(): ?bool
+    {
+        return $this->virtualBackgroundsDisabled;
+    }
+
+    /**
+     * Setting to true will disable Virtual Backgrounds for all users in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.4.3
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    public function setVirtualBackgroundsDisabled(bool $virtualBackgroundsDisabled): self
+    {
+        $this->virtualBackgroundsDisabled = $virtualBackgroundsDisabled;
+
+        return $this;
+    }
+
+    public function getLearningDashboardCleanupDelayInMinutes(): ?int
+    {
+        return $this->learningDashboardCleanupDelayInMinutes;
+    }
+
+    /**
+     * Default learningDashboardCleanupDelayInMinutes=2. This option set the delay (in minutes) before the Learning
+     * Dashboard become unavailable after the end of the meeting. If this value is zero, the Learning Dashboard will
+     * keep available permanently.
+     *
+     * @since 2.4
+     *
+     * Default: 2
+     */
+    public function setLearningDashboardCleanupDelayInMinutes(int $learningDashboardCleanupDelayInMinutes): self
+    {
+        $this->learningDashboardCleanupDelayInMinutes = $learningDashboardCleanupDelayInMinutes;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'endWhenNoModeratorDelayInMinutes')]
+    public function getEndWhenNoModeratorDelayInMinutes(): ?int
+    {
+        return $this->endWhenNoModeratorDelayInMinutes;
+    }
+
+    /**
+     * Defaults to the value of endWhenNoModeratorDelayInMinutes=1. If endWhenNoModerator is true, the meeting
+     * will be automatically ended after this many minutes.
+     *
+     * Default: 1
+     *
+     * @since in 2.2
+     */
+    public function setEndWhenNoModeratorDelayInMinutes(int $endWhenNoModeratorDelayInMinutes): self
+    {
+        $this->endWhenNoModeratorDelayInMinutes = $endWhenNoModeratorDelayInMinutes;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'endWhenNoModerator')]
+    public function isEndWhenNoModerator(): ?bool
+    {
+        return $this->endWhenNoModerator;
+    }
+
+    /**
+     * Default endWhenNoModerator=false. If endWhenNoModerator is true the meeting will end automatically after
+     * a delay - see endWhenNoModeratorDelayInMinutes.
+     *
+     * Default: false
+     *
+     * @since in 2.3
+     */
+    public function setEndWhenNoModerator(bool $endWhenNoModerator): self
+    {
+        $this->endWhenNoModerator = $endWhenNoModerator;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingKeepEvents')]
+    public function isMeetingKeepEvents(): ?bool
+    {
+        return $this->meetingKeepEvents;
+    }
+
+    /**
+     * Defaults to the value of defaultKeepEvents. If meetingKeepEvents is true BigBlueButton saves meeting
+     * events even if the meeting is not recorded.
+     *
+     * Default: false
+     *
+     * @since in 2.3
+     */
+    public function setMeetingKeepEvents(bool $meetingKeepEvents): self
+    {
+        $this->meetingKeepEvents = $meetingKeepEvents;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'copyright')]
+    public function getCopyright(): ?string
+    {
+        return $this->copyright;
+    }
+
+    /**
+     * @deprecated since 4.0 (had no effect; use clientSettingsOverride for public.app.copyright instead)
+     */
+    public function setCopyright(string $copyright): self
+    {
+        $this->copyright = $copyright;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'muteOnStart')]
+    public function isMuteOnStart(): ?bool
+    {
+        return $this->muteOnStart;
+    }
+
+    /**
+     * Setting true will mute all users when the meeting starts.
+     *
+     * @since 2.0
+     */
+    public function setMuteOnStart(bool $muteOnStart): self
+    {
+        $this->muteOnStart = $muteOnStart;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsDisableCam')]
+    public function isLockSettingsDisableCam(): ?bool
+    {
+        return $this->lockSettingsDisableCam;
+    }
+
+    /**
+     * Setting true will prevent users from sharing their camera in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.2
+     */
+    public function setLockSettingsDisableCam(bool $lockSettingsDisableCam): self
+    {
+        $this->lockSettingsDisableCam = $lockSettingsDisableCam;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsDisableMic')]
+    public function isLockSettingsDisableMic(): ?bool
+    {
+        return $this->lockSettingsDisableMic;
+    }
+
+    /**
+     * Setting to true will only allow user to join listen only.
+     *
+     * Default: false
+     *
+     * @since 2.2
+     */
+    public function setLockSettingsDisableMic(bool $lockSettingsDisableMic): self
+    {
+        $this->lockSettingsDisableMic = $lockSettingsDisableMic;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsDisablePrivateChat')]
+    public function isLockSettingsDisablePrivateChat(): ?bool
+    {
+        return $this->lockSettingsDisablePrivateChat;
+    }
+
+    /**
+     * Setting to true will disable private chats in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.2
+     */
+    public function setLockSettingsDisablePrivateChat(bool $lockSettingsDisablePrivateChat): self
+    {
+        $this->lockSettingsDisablePrivateChat = $lockSettingsDisablePrivateChat;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsDisablePublicChat')]
+    public function isLockSettingsDisablePublicChat(): ?bool
+    {
+        return $this->lockSettingsDisablePublicChat;
+    }
+
+    /**
+     * Setting to true will disable public chat in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.2
+     */
+    public function setLockSettingsDisablePublicChat(bool $lockSettingsDisablePublicChat): self
+    {
+        $this->lockSettingsDisablePublicChat = $lockSettingsDisablePublicChat;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated isLockSettingsDisableNote is replaced by isLockSettingsDisableNotes
+     */
+    public function isLockSettingsDisableNote(): ?bool
+    {
+        return $this->isLockSettingsDisableNotes();
+    }
+
+    /**
+     * Setting to true will disable notes in the meeting.
+     *
+     * @deprecated setLockSettingsDisableNote is replaced by setLockSettingsDisableNotes
+     */
+    public function setLockSettingsDisableNote(bool $lockSettingsDisableNote): self
+    {
+        $this->setLockSettingsDisableNotes($lockSettingsDisableNote);
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsDisableNotes')]
+    public function isLockSettingsDisableNotes(): ?bool
+    {
+        return $this->lockSettingsDisableNotes;
+    }
+
+    /**
+     * Setting to true will disable notes in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.2
+     */
+    public function setLockSettingsDisableNotes(bool $lockSettingsDisableNotes): self
+    {
+        $this->lockSettingsDisableNotes = $lockSettingsDisableNotes;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsHideUserList')]
+    public function isLockSettingsHideUserList(): ?bool
+    {
+        return $this->lockSettingsHideUserList;
+    }
+
+    /**
+     * Setting to true will prevent viewers from seeing other viewers in the user list.
+     *
+     * Default: false
+     *
+     * @since 2.2
+     */
+    public function setLockSettingsHideUserList(bool $lockSettingsHideUserList): self
+    {
+        $this->lockSettingsHideUserList = $lockSettingsHideUserList;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsLockedLayout')]
+    public function isLockSettingsLockedLayout(): ?bool
+    {
+        return $this->lockSettingsLockedLayout;
+    }
+
+    public function setLockSettingsLockedLayout(bool $lockSettingsLockedLayout): self
+    {
+        $this->lockSettingsLockedLayout = $lockSettingsLockedLayout;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsLockOnJoin')]
+    public function isLockSettingsLockOnJoin(): ?bool
+    {
+        return $this->lockSettingsLockOnJoin;
+    }
+
+    /**
+     * Setting to false will not apply lock setting to users when they join.
+     *
+     * Default: true
+     *
+     * @since 2.2
+     */
+    public function setLockSettingsLockOnJoin(bool $lockOnJoin): self
+    {
+        $this->lockSettingsLockOnJoin = $lockOnJoin;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsLockOnJoinConfigurable')]
+    public function isLockSettingsLockOnJoinConfigurable(): ?bool
+    {
+        return $this->lockSettingsLockOnJoinConfigurable;
+    }
+
+    /**
+     * Setting to true will allow applying of lockSettingsLockOnJoin.
+     *
+     * Default: false
+     */
+    public function setLockSettingsLockOnJoinConfigurable(bool $lockOnJoinConfigurable): self
+    {
+        $this->lockSettingsLockOnJoinConfigurable = $lockOnJoinConfigurable;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsHideViewersCursor')]
+    public function isLockSettingsHideViewersCursor(): ?bool
+    {
+        return $this->lockSettingsHideViewersCursor;
+    }
+
+    /**
+     * Setting to true will prevent viewers to see other viewers cursor when multi-user whiteboard is on.
+     *
+     * Default: false
+     *
+     * @since 2.5
+     */
+    public function setLockSettingsHideViewersCursor(bool $lockSettingsHideViewersCursor): self
+    {
+        $this->lockSettingsHideViewersCursor = $lockSettingsHideViewersCursor;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'allowModsToUnmuteUsers')]
+    public function isAllowModsToUnmuteUsers(): ?bool
+    {
+        return $this->allowModsToUnmuteUsers;
+    }
+
+    /**
+     * Setting to true will allow moderators to unmute other users in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.2
+     */
+    public function setAllowModsToUnmuteUsers(bool $allowModsToUnmuteUsers): self
+    {
+        $this->allowModsToUnmuteUsers = $allowModsToUnmuteUsers;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'allowModsToEjectCameras')]
+    public function isAllowModsToEjectCameras(): ?bool
+    {
+        return $this->allowModsToEjectCameras;
+    }
+
+    /**
+     * Setting to true will allow moderators to close other users cameras in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.4
+     */
+    public function setAllowModsToEjectCameras(bool $allowModsToEjectCameras): self
+    {
+        $this->allowModsToEjectCameras = $allowModsToEjectCameras;
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $endCallbackUrl
+     */
+    // #[ApiParameterMapper(attributeName: 'endCallbackUrl')]
+    public function setEndCallbackUrl($endCallbackUrl): self
+    {
+        $this->addMeta('endCallbackUrl', $endCallbackUrl);
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $recordingReadyCallbackUrl
+     */
+    public function setRecordingReadyCallbackUrl($recordingReadyCallbackUrl): self
+    {
+        $this->addMeta('bbb-recording-ready-url', $recordingReadyCallbackUrl);
+
+        return $this;
+    }
+
+    public function isBreakout(): ?bool
+    {
+        return $this->isBreakout;
+    }
+
+    /**
+     * Must be set to true to create a breakout room.
+     */
+    public function setBreakout(bool $isBreakout): self
+    {
+        $this->isBreakout = $isBreakout;
+
+        return $this;
+    }
+
+    public function getParentMeetingId(): ?string
+    {
+        return $this->parentMeetingId;
+    }
+
+    /**
+     * Must be provided when creating a breakout room, the parent room must be running.
+     */
+    public function setParentMeetingId(string $parentMeetingId): self
+    {
+        $this->parentMeetingId = $parentMeetingId;
+
+        return $this;
+    }
+
+    public function getSequence(): ?int
+    {
+        return $this->sequence;
+    }
+
+    /**
+     * The sequence number of the breakout room.
+     */
+    public function setSequence(int $sequence): self
+    {
+        $this->sequence = $sequence;
+
+        return $this;
+    }
+
+    public function isFreeJoin(): ?bool
+    {
+        return $this->freeJoin;
+    }
+
+    /**
+     * If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.
+     */
+    public function setFreeJoin(bool $freeJoin): self
+    {
+        $this->freeJoin = $freeJoin;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'guestPolicy')]
+    public function getGuestPolicy(): ?GuestPolicy
+    {
+        return $this->guestPolicy;
+    }
+
+    /**
+     * Will set the guest policy for the meeting. The guest policy determines whether or not users who send a
+     * join request with guest=true will be allowed to join the meeting. Possible values are ALWAYS_ACCEPT,
+     * ALWAYS_DENY, and ASK_MODERATOR.
+     *
+     * Default: ALWAYS_ACCEPT
+     */
+    public function setGuestPolicy(GuestPolicy $guestPolicy): self
+    {
+        $this->guestPolicy = $guestPolicy;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    #[ApiParameterMapper(attributeName: 'breakoutRoomsEnabled')]
+    public function isBreakoutRoomsEnabled(): ?bool
+    {
+        return $this->breakoutRoomsEnabled;
+    }
+
+    /**
+     * If set to false, breakout rooms will be disabled.
+     *
+     * Default: true
+     *
+     * @param mixed $breakoutRoomsEnabled
+     *
+     * @deprecated Removed in 2.5, temporarily still handled, please transition to disabledFeatures.
+     */
+    public function setBreakoutRoomsEnabled($breakoutRoomsEnabled): self
+    {
+        $this->breakoutRoomsEnabled = $breakoutRoomsEnabled;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'breakoutRoomsRecord')]
+    public function isBreakoutRoomsRecord(): ?bool
+    {
+        return $this->breakoutRoomsRecord;
+    }
+
+    /**
+     * If set to false, breakout rooms will not be recorded.
+     *
+     * Default: true
+     */
+    public function setBreakoutRoomsRecord(bool $breakoutRoomsRecord): self
+    {
+        $this->breakoutRoomsRecord = $breakoutRoomsRecord;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'breakoutRoomsPrivateChatEnabled')]
+    public function isBreakoutRoomsPrivateChatEnabled(): ?bool
+    {
+        return $this->breakoutRoomsPrivateChatEnabled;
+    }
+
+    /**
+     * If set to false, the private chat will be disabled in breakout rooms.
+     *
+     * Default: true
+     */
+    public function setBreakoutRoomsPrivateChatEnabled(bool $breakoutRoomsPrivateChatEnabled): self
+    {
+        $this->breakoutRoomsPrivateChatEnabled = $breakoutRoomsPrivateChatEnabled;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingEndedURL')]
+    public function getMeetingEndedURL(): ?string
+    {
+        return $this->meetingEndedURL;
+    }
+
+    public function setMeetingEndedURL(string $meetingEndedURL): self
+    {
+        $this->meetingEndedURL = $meetingEndedURL;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingLayout')]
+    public function getMeetingLayout(): ?MeetingLayout
+    {
+        return $this->meetingLayout;
+    }
+
+    /**
+     * Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT,
+     * PRESENTATION_FOCUS, VIDEO_FOCUS, CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY.
+     *
+     * Default: SMART_LAYOUT
+     *
+     * @since 2.4
+     */
+    public function setMeetingLayout(MeetingLayout $meetingLayout): self
+    {
+        $this->meetingLayout = $meetingLayout;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'allowRequestsWithoutSession')]
+    public function isAllowRequestsWithoutSession(): ?bool
+    {
+        return $this->allowRequestsWithoutSession;
+    }
+
+    /**
+     * Setting to true will allow users to join meetings without session cookie's validation.
+     *
+     * Default: false
+     *
+     * @since 2.4.3
+     *
+     * @param mixed $allowRequestsWithoutSession
+     */
+    public function setAllowRequestsWithoutSession($allowRequestsWithoutSession): self
+    {
+        $this->allowRequestsWithoutSession = $allowRequestsWithoutSession;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'userCameraCap')]
+    public function getUserCameraCap(): ?int
+    {
+        return $this->userCameraCap;
+    }
+
+    /**
+     * Setting to 0 will disable this threshold. Defines the max number of webcams a single user can share
+     * simultaneously.
+     *
+     * Default: 3
+     *
+     * @since 2.4.5
+     */
+    public function setUserCameraCap(int $userCameraCap): self
+    {
+        $this->userCameraCap = $userCameraCap;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingCameraCap')]
+    public function getMeetingCameraCap(): ?int
+    {
+        return $this->meetingCameraCap;
+    }
+
+    /**
+     * Setting to 0 will disable this threshold. Defines the max number of webcams a meeting can have
+     * simultaneously.
+     *
+     * Default: 0
+     *
+     * @since 2.5.0
+     */
+    public function setMeetingCameraCap(int $meetingCameraCap): self
+    {
+        $this->meetingCameraCap = $meetingCameraCap;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingExpireIfNoUserJoinedInMinutes')]
+    public function getMeetingExpireIfNoUserJoinedInMinutes(): ?int
+    {
+        return $this->meetingExpireIfNoUserJoinedInMinutes;
+    }
+
+    /**
+     * Automatically end meeting if no user joined within a period of time after meeting created.
+     *
+     * Default: 5
+     *
+     * @since 2.5
+     */
+    public function setMeetingExpireIfNoUserJoinedInMinutes(int $meetingExpireIfNoUserJoinedInMinutes): self
+    {
+        $this->meetingExpireIfNoUserJoinedInMinutes = $meetingExpireIfNoUserJoinedInMinutes;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'meetingExpireWhenLastUserLeftInMinutes')]
+    public function getMeetingExpireWhenLastUserLeftInMinutes(): ?int
+    {
+        return $this->meetingExpireWhenLastUserLeftInMinutes;
+    }
+
+    /**
+     * Number of minutes to automatically end meeting after last user left..
+     *
+     * Setting to 0 will disable this function.
+     *
+     * Default: 1
+     *
+     * @since 2.5
+     */
+    public function setMeetingExpireWhenLastUserLeftInMinutes(int $meetingExpireWhenLastUserLeftInMinutes): self
+    {
+        $this->meetingExpireWhenLastUserLeftInMinutes = $meetingExpireWhenLastUserLeftInMinutes;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'preUploadedPresentationOverrideDefault')]
+    public function isPreUploadedPresentationOverrideDefault(): ?bool
+    {
+        return $this->preUploadedPresentationOverrideDefault;
+    }
+
+    #[ApiParameterMapper(attributeName: 'allowPromoteGuestToModerator')]
+    public function isAllowPromoteGuestToModerator(): ?bool
+    {
+        return $this->allowPromoteGuestToModerator;
+    }
+
+    #[ApiParameterMapper(attributeName: 'allowOverrideClientSettingsOnCreateCall')]
+    public function isAllowOverrideClientSettingsOnCreateCall(): ?bool
+    {
+        return $this->allowOverrideClientSettingsOnCreateCall;
+    }
+
+    /**
+     * If passed with a valid presentation file url, this presentation will override the default presentation.
+     * To only upload but not set as default, also pass preUploadedPresentationOverrideDefault=false.
+     *
+     * @since 2.7.2
+     */
+    public function setPreUploadedPresentation(string $preUploadedPresentation): self
+    {
+        $this->preUploadedPresentation = $preUploadedPresentation;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'preUploadedPresentation')]
+    public function getPreUploadedPresentation(): ?string
+    {
+        return $this->preUploadedPresentation;
+    }
+
+    /**
+     * If passed it will use this string as the name of the presentation uploaded via preUploadedPresentation.
+     *
+     * @since 2.7.2
+     */
+    public function setPreUploadedPresentationName(string $preUploadedPresentationName): self
+    {
+        $this->preUploadedPresentationName = $preUploadedPresentationName;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'preUploadedPresentationName')]
+    public function getPreUploadedPresentationName(): ?string
+    {
+        return $this->preUploadedPresentationName;
+    }
+
+    /**
+     * If it is true, the default.pdf document is not sent along with the other presentations in the /create
+     * endpoint, on the other hand, if that's false, the default.pdf is sent with the other documents.
+     *
+     * Default: true
+     */
+    public function setPreUploadedPresentationOverrideDefault(bool $preUploadedPresentationOverrideDefault): self
+    {
+        $this->preUploadedPresentationOverrideDefault = $preUploadedPresentationOverrideDefault;
+
+        return $this;
+    }
+
+    /**
+     * @since 2.7.9
+     */
+    public function setAllowPromoteGuestToModerator(bool $allowPromoteGuestToModerator): self
+    {
+        $this->allowPromoteGuestToModerator = $allowPromoteGuestToModerator;
+
+        return $this;
+    }
+
+    /**
+     * @since 3.0.0
+     */
+    public function setAllowOverrideClientSettingsOnCreateCall(bool $allowOverrideClientSettingsOnCreateCall): self
+    {
+        $this->allowOverrideClientSettingsOnCreateCall = $allowOverrideClientSettingsOnCreateCall;
+
+        return $this;
+    }
+
+    public function getClientSettingsOverride(): ?ClientSettingsOverride
+    {
+        return $this->clientSettingsOverride;
+    }
+
+    /**
+     * Set the client settings override module for the meeting.
+     * This allows overriding HTML5 client settings from the settings.yml file.
+     *
+     * Note: This requires allowOverrideClientSettingsOnCreateCall to be set to true.
+     *
+     * @since 3.0.0
+     */
+    public function setClientSettingsOverride(?ClientSettingsOverride $clientSettingsOverride): self
+    {
+        $this->clientSettingsOverride = $clientSettingsOverride;
+
+        return $this;
+    }
+
+    /**
+     * Get the client settings override as XML for the API request.
+     *
+     * @return string The XML representation of the client settings override module
+     *
+     * @since 3.0.0
+     */
+    public function getClientSettingsOverrideAsXML(): string
+    {
+        if (null === $this->clientSettingsOverride) {
+            return '';
+        }
+
+        return $this->clientSettingsOverride->toXML();
+    }
+
+    /**
+     * Get all modules (presentations and client settings override) as combined XML for the API request.
+     *
+     * @return string The combined XML representation of all modules
+     *
+     * @since 3.0.0
+     */
+    public function getModulesAsXML(): string
+    {
+        $modules = array_filter([
+            $this->getPresentationsAsXML(),
+            $this->getClientSettingsOverrideAsXML(),
+            $this->getSharedNotesInitialContentAsXML(),
+            $this->getSharedNotesInitialContentMarkdownAsXML(),
+        ], static fn (string $xml): bool => '' !== $xml);
+
+        if ([] === $modules) {
+            return '';
+        }
+
+        if (1 === \count($modules)) {
+            return reset($modules);
+        }
+
+        return $this->mergeModulesXml($modules);
+    }
+
+    /**
+     * @return Feature[]
+     */
+    #[ApiParameterMapper(attributeName: 'disabledFeatures')]
+    public function getDisabledFeatures(): array
+    {
+        return $this->disabledFeatures;
+    }
+
+    /**
+     * List of features to disable in a particular meeting.
+     *
+     * Available options to disable:
+     * - breakoutRooms:                                         Breakout Rooms
+     * - captions:                                              Closed Caption
+     * - chat:                                                  Chat
+     * - downloadPresentationWithAnnotations:                   Annotated presentation download
+     * - snapshotOfCurrentSlide:                                Allow snapshot of the current slide
+     * - externalVideos:                                        Share an external video
+     * - importPresentationWithAnnotationsFromBreakoutRooms:    Capture breakout presentation
+     * - importSharedNotesFromBreakoutRooms:                    Capture breakout shared notes
+     * - layouts:                                               Layouts (allow only default layout)
+     * - learningDashboard:                                     Learning Analytics Dashboard
+     * - polls:                                                 Polls
+     * - screenshare:                                           Screen Sharing
+     * - sharedNotes:                                           Shared Notes
+     * - virtualBackgrounds:                                    Virtual Backgrounds
+     * - customVirtualBackgrounds:                              Virtual Backgrounds Upload
+     * - liveTranscription:                                     Live Transcription
+     * - presentation:                                          Presentation
+     * - cameraAsContent:                                       Enables/Disables camera as a content
+     * - timer:                                                 Disables timer
+     *
+     * @param Feature[] $disabledFeatures
+     *
+     * @since 2.5
+     */
+    public function setDisabledFeatures(array $disabledFeatures): self
+    {
+        $this->disabledFeatures = $disabledFeatures;
+
+        return $this;
+    }
+
+    /**
+     * @return Feature[]
+     */
+    #[ApiParameterMapper(attributeName: 'disabledFeaturesExclude')]
+    public function getDisabledFeaturesExclude(): array
+    {
+        return $this->disabledFeaturesExclude;
+    }
+
+    /**
+     * List of features to no longer disable in a particular meeting. This is particularly useful if you
+     * disabled a list of features on a per-server basis but want to allow one of two of these features
+     * for a specific meeting.
+     *
+     * The available options to exclude are exactly the same as for disabledFeatures
+     *
+     * @param Feature[] $disabledFeaturesExclude
+     *
+     * @since 2.6.9
+     */
+    public function setDisabledFeaturesExclude(array $disabledFeaturesExclude): self
+    {
+        $this->disabledFeaturesExclude = $disabledFeaturesExclude;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'recordFullDurationMedia')]
+    public function getRecordFullDurationMedia(): ?bool
+    {
+        return $this->recordFullDurationMedia;
+    }
+
+    /**
+     * Controls whether media (audio, cameras and screen sharing) should be captured on their full duration
+     * if the meeting's recorded property is true (recorded=true). Default is false: only captures media while
+     * recording is running in the meeting.
+     *
+     * Default: false
+     *
+     * @since 2.6.9
+     */
+    public function setRecordFullDurationMedia(bool $recordFullDurationMedia): self
+    {
+        $this->recordFullDurationMedia = $recordFullDurationMedia;
+
+        return $this;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function getBreakoutRoomsGroups(): array
+    {
+        return $this->breakoutRoomsGroups;
+    }
+
+    /**
+     * @param array<int, string> $roster
+     */
+    public function addBreakoutRoomsGroup(mixed $id, string $name, array $roster): self
+    {
+        $this->breakoutRoomsGroups[] = ['id' => $id, 'name' => $name, 'roster' => $roster];
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'notifyRecordingIsOn')]
+    public function getNotifyRecordingIsOn(): ?bool
+    {
+        return $this->notifyRecordingIsOn;
+    }
+
+    /**
+     * If it is true, a modal will be displayed to collect recording consent from users when meeting recording
+     * starts (only if remindRecordingIsOn=true).
+     *
+     * Default: false
+     *
+     * @since 2.6
+     */
+    public function setNotifyRecordingIsOn(bool $notifyRecordingIsOn): self
+    {
+        $this->notifyRecordingIsOn = $notifyRecordingIsOn;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'presentationUploadExternalUrl')]
+    public function getPresentationUploadExternalUrl(): ?string
+    {
+        return $this->presentationUploadExternalUrl;
+    }
+
+    /**
+     * Pass a URL to a specific page in external application to select files for inserting documents into a live
+     * presentation. Only works if presentationUploadExternalDescription is also set.
+     *
+     * @since 2.6
+     */
+    public function setPresentationUploadExternalUrl(string $presentationUploadExternalUrl): self
+    {
+        $this->presentationUploadExternalUrl = $presentationUploadExternalUrl;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'presentationUploadExternalDescription')]
+    public function getPresentationUploadExternalDescription(): ?string
+    {
+        return $this->presentationUploadExternalDescription;
+    }
+
+    /**
+     * Message to be displayed in presentation uploader modal describing how to use an external application to
+     * upload presentation files. Only works if presentationUploadExternalUrl is also set.
+     *
+     * @since 2.6
+     */
+    public function setPresentationUploadExternalDescription(string $presentationUploadExternalDescription): self
+    {
+        $this->presentationUploadExternalDescription = $presentationUploadExternalDescription;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'loginURL')]
+    public function getLoginURL(): ?string
+    {
+        return $this->loginURL;
+    }
+
+    /**
+     * @since 3.0.0
+     */
+    public function setLoginURL(string $loginURL): self
+    {
+        $this->loginURL = $loginURL;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'pluginManifests')]
+    public function getPluginManifests(): ?string
+    {
+        return $this->pluginManifests;
+    }
+
+    /**
+     * JSON string containing plugin manifests to load for the meeting.
+     */
+    public function setPluginManifests(string $pluginManifests): self
+    {
+        // Ensure the value is valid JSON by decoding and re-encoding
+        json_decode($pluginManifests);
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new \InvalidArgumentException('pluginManifests must be a valid JSON string.');
+        }
+
+        $this->pluginManifests = $pluginManifests;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'pluginManifestsFetchUrl')]
+    public function getPluginManifestsFetchUrl(): ?string
+    {
+        return $this->pluginManifestsFetchUrl;
+    }
+
+    /**
+     * URL to fetch the plugin manifests from.
+     */
+    public function setPluginManifestsFetchUrl(string $pluginManifestsFetchUrl): self
+    {
+        $this->pluginManifestsFetchUrl = $pluginManifestsFetchUrl;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'presentationConversionCacheEnabled')]
+    public function isPresentationConversionCacheEnabled(): ?bool
+    {
+        return $this->presentationConversionCacheEnabled;
+    }
+
+    /**
+     * Enable or disable caching for presentation conversion.
+     */
+    public function setPresentationConversionCacheEnabled(bool $presentationConversionCacheEnabled): self
+    {
+        $this->presentationConversionCacheEnabled = $presentationConversionCacheEnabled;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'maxNumPages')]
+    public function getMaxNumPages(): ?int
+    {
+        return $this->maxNumPages;
+    }
+
+    /**
+     * Maximum number of pages allowed for presentations in the meeting.
+     */
+    public function setMaxNumPages(int $maxNumPages): self
+    {
+        $this->maxNumPages = $maxNumPages;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'multiUserWhiteboardEnabled')]
+    public function isMultiUserWhiteboardEnabled(): ?bool
+    {
+        return $this->multiUserWhiteboardEnabled;
+    }
+
+    /**
+     * Enable or disable the multi-user whiteboard feature.
+     */
+    public function setMultiUserWhiteboardEnabled(bool $multiUserWhiteboardEnabled): self
+    {
+        $this->multiUserWhiteboardEnabled = $multiUserWhiteboardEnabled;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'maxPinnedCameras')]
+    public function getMaxPinnedCameras(): ?int
+    {
+        return $this->maxPinnedCameras;
+    }
+
+    /**
+     * Maximum number of cameras that can be pinned simultaneously in the meeting.
+     */
+    public function setMaxPinnedCameras(int $maxPinnedCameras): self
+    {
+        $this->maxPinnedCameras = $maxPinnedCameras;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'darklogo')]
+    public function getDarkLogo(): ?string
+    {
+        return $this->darkLogo;
+    }
+
+    /**
+     * URL to an image used instead of the logo in dark mode of the client.
+     */
+    public function setDarkLogo(string $darkLogo): self
+    {
+        $this->darkLogo = $darkLogo;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'logoutTimer')]
+    public function getLogoutTimer(): ?int
+    {
+        return $this->logoutTimer;
+    }
+
+    /**
+     * Time in minutes after which the client session times out. Overrides the
+     * server-side default (clientLogoutTimerInMinutes). Legacy parameter.
+     */
+    public function setLogoutTimer(int $logoutTimer): self
+    {
+        $this->logoutTimer = $logoutTimer;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'cameraBridge')]
+    public function getCameraBridge(): ?string
+    {
+        return $this->cameraBridge;
+    }
+
+    /**
+     * Selects the media bridge used for camera streams (e.g. fullbridge or livekit).
+     */
+    public function setCameraBridge(string $cameraBridge): self
+    {
+        $this->cameraBridge = $cameraBridge;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'screenShareBridge')]
+    public function getScreenShareBridge(): ?string
+    {
+        return $this->screenShareBridge;
+    }
+
+    /**
+     * Selects the media bridge used for screen-share streams.
+     */
+    public function setScreenShareBridge(string $screenShareBridge): self
+    {
+        $this->screenShareBridge = $screenShareBridge;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'audioBridge')]
+    public function getAudioBridge(): ?string
+    {
+        return $this->audioBridge;
+    }
+
+    /**
+     * Selects the media bridge used for audio (e.g. freeswitch or livekit).
+     */
+    public function setAudioBridge(string $audioBridge): self
+    {
+        $this->audioBridge = $audioBridge;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsHideViewersAnnotation')]
+    public function isLockSettingsHideViewersAnnotation(): ?bool
+    {
+        return $this->lockSettingsHideViewersAnnotation;
+    }
+
+    /**
+     * Setting to true will prevent viewers from seeing annotations from other
+     * viewers when multi-user whiteboard is on.
+     *
+     * Default: false
+     */
+    public function setLockSettingsHideViewersAnnotation(bool $lockSettingsHideViewersAnnotation): self
+    {
+        $this->lockSettingsHideViewersAnnotation = $lockSettingsHideViewersAnnotation;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'breakoutRoomsCaptureSlides')]
+    public function isBreakoutRoomsCaptureSlides(): ?bool
+    {
+        return $this->breakoutRoomsCaptureSlides;
+    }
+
+    /**
+     * Setting to true will capture the slides of the breakout room and upload
+     * them to the parent meeting when the breakout room ends.
+     */
+    public function setBreakoutRoomsCaptureSlides(bool $breakoutRoomsCaptureSlides): self
+    {
+        $this->breakoutRoomsCaptureSlides = $breakoutRoomsCaptureSlides;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'breakoutRoomsCaptureNotes')]
+    public function isBreakoutRoomsCaptureNotes(): ?bool
+    {
+        return $this->breakoutRoomsCaptureNotes;
+    }
+
+    /**
+     * Setting to true will capture the shared notes of the breakout room and
+     * upload them to the parent meeting when the breakout room ends.
+     */
+    public function setBreakoutRoomsCaptureNotes(bool $breakoutRoomsCaptureNotes): self
+    {
+        $this->breakoutRoomsCaptureNotes = $breakoutRoomsCaptureNotes;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'breakoutRoomsCaptureSlidesFilename')]
+    public function getBreakoutRoomsCaptureSlidesFilename(): ?string
+    {
+        return $this->breakoutRoomsCaptureSlidesFilename;
+    }
+
+    /**
+     * Filename to use when the slides of the breakout room are captured and
+     * uploaded to the parent meeting. Requires breakoutRoomsCaptureSlides.
+     */
+    public function setBreakoutRoomsCaptureSlidesFilename(string $breakoutRoomsCaptureSlidesFilename): self
+    {
+        $this->breakoutRoomsCaptureSlidesFilename = $breakoutRoomsCaptureSlidesFilename;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'breakoutRoomsCaptureNotesFilename')]
+    public function getBreakoutRoomsCaptureNotesFilename(): ?string
+    {
+        return $this->breakoutRoomsCaptureNotesFilename;
+    }
+
+    /**
+     * Filename to use when the shared notes of the breakout room are captured
+     * and uploaded to the parent meeting. Requires breakoutRoomsCaptureNotes.
+     */
+    public function setBreakoutRoomsCaptureNotesFilename(string $breakoutRoomsCaptureNotesFilename): self
+    {
+        $this->breakoutRoomsCaptureNotesFilename = $breakoutRoomsCaptureNotesFilename;
+
+        return $this;
+    }
+
+    /**
+     * Get a single plugin metadata value by its key (without the plugin_-prefix).
+     */
+    public function getPluginMeta(string $key): mixed
+    {
+        return $this->pluginMeta[$key];
+    }
+
+    /**
+     * Add plugin metadata, sent as plugin_<key> parameter to the BBB-Server.
+     *
+     * The key is provided without the plugin_-prefix (a mistakenly provided
+     * prefix is stripped). The BBB-Server lowercases the name, so lowercase
+     * keys should be preferred to reference them in the plugin manifest.
+     */
+    public function addPluginMeta(string $key, mixed $value): static
+    {
+        if (str_starts_with($key, 'plugin_')) {
+            $key = mb_substr($key, \mb_strlen('plugin_'));
+        }
+
+        $this->pluginMeta[$key] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Replace all plugin metadata, sent as plugin_<key> parameters to the
+     * BBB-Server. Keys are provided without the plugin_-prefix.
+     *
+     * @param array<string, mixed> $pluginMeta
+     */
+    public function setPluginMeta(array $pluginMeta): static
+    {
+        $this->pluginMeta = [];
+
+        foreach ($pluginMeta as $key => $value) {
+            $this->addPluginMeta($key, $value);
+        }
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'sharedNotesEditor')]
+    public function getSharedNotesEditor(): ?string
+    {
+        return $this->sharedNotesEditor;
+    }
+
+    /**
+     * Editor to be rendered in the shared-notes area: 'etherpad' or 'blockNote'.
+     * Default on the BBB-Server: etherpad.
+     */
+    public function setSharedNotesEditor(string $sharedNotesEditor): self
+    {
+        $this->sharedNotesEditor = $sharedNotesEditor;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'sharedNotesInitialContentJsonUrl')]
+    public function getSharedNotesInitialContentJsonUrl(): ?string
+    {
+        return $this->sharedNotesInitialContentJsonUrl;
+    }
+
+    /**
+     * URL from which the shared-notes will fetch the initial content. Only
+     * applicable if sharedNotesEditor is set to 'blockNote'.
+     */
+    public function setSharedNotesInitialContentJsonUrl(string $sharedNotesInitialContentJsonUrl): self
+    {
+        $this->sharedNotesInitialContentJsonUrl = $sharedNotesInitialContentJsonUrl;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'clientSettingsOverrideJsonUrl')]
+    public function getClientSettingsOverrideJsonUrl(): ?string
+    {
+        return $this->clientSettingsOverrideJsonUrl;
+    }
+
+    /**
+     * URL of a JSON file overriding the client settings. Takes precedence over
+     * the clientSettingsOverride POST payload and does not require
+     * allowOverrideClientSettingsOnCreateCall.
+     */
+    public function setClientSettingsOverrideJsonUrl(string $clientSettingsOverrideJsonUrl): self
+    {
+        $this->clientSettingsOverrideJsonUrl = $clientSettingsOverrideJsonUrl;
+
+        return $this;
+    }
+
+    /**
+     * The initial content of the shared notes as JSON string, sent as
+     * sharedNotesInitialContentJson POST module.
+     */
+    public function getSharedNotesInitialContentJson(): ?string
+    {
+        return $this->sharedNotesInitialContentJson;
+    }
+
+    public function setSharedNotesInitialContentJson(string $sharedNotesInitialContentJson): self
+    {
+        json_decode($sharedNotesInitialContentJson);
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new \InvalidArgumentException('sharedNotesInitialContentJson must be a valid JSON string.');
+        }
+
+        $this->sharedNotesInitialContentJson = $sharedNotesInitialContentJson;
+
+        return $this;
+    }
+
+    /**
+     * The sharedNotesInitialContentJson POST module.
+     */
+    public function getSharedNotesInitialContentAsXML(): string
+    {
+        if (null === $this->sharedNotesInitialContentJson) {
+            return '';
+        }
+
+        $json = $this->sharedNotesInitialContentJson;
+
+        return <<<XML
+            <modules>
+               <module name="sharedNotesInitialContentJson">
+                     <![CDATA[
+                     {$json}
+                     ]]>
+               </module>
+            </modules>
+            XML;
+    }
+
+    #[ApiParameterMapper(attributeName: 'sharedNotesInitialContentMarkdown')]
+    public function getSharedNotesInitialContentMarkdown(): ?string
+    {
+        return $this->sharedNotesInitialContentMarkdown;
+    }
+
+    /**
+     * Raw Markdown as initial content of the shared notes, sent inline as create
+     * parameter. Suitable for short content that fits within URL length limits.
+     * The BlockNote JSON content takes precedence over the Markdown.
+     */
+    public function setSharedNotesInitialContentMarkdown(string $sharedNotesInitialContentMarkdown): self
+    {
+        $this->sharedNotesInitialContentMarkdown = $sharedNotesInitialContentMarkdown;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'sharedNotesInitialContentMarkdownUrl')]
+    public function getSharedNotesInitialContentMarkdownUrl(): ?string
+    {
+        return $this->sharedNotesInitialContentMarkdownUrl;
+    }
+
+    /**
+     * URL from which the raw Markdown for the initial shared-notes content is
+     * fetched by the BBB-Server (HTTPS only).
+     */
+    public function setSharedNotesInitialContentMarkdownUrl(string $sharedNotesInitialContentMarkdownUrl): self
+    {
+        $this->sharedNotesInitialContentMarkdownUrl = $sharedNotesInitialContentMarkdownUrl;
+
+        return $this;
+    }
+
+    /**
+     * Raw Markdown sent in the POST body via the sharedNotesInitialContentMarkdown
+     * module, for content too large for a query string.
+     */
+    public function getSharedNotesInitialContentMarkdownModule(): ?string
+    {
+        return $this->sharedNotesInitialContentMarkdownModule;
+    }
+
+    public function setSharedNotesInitialContentMarkdownModule(string $markdown): self
+    {
+        $this->sharedNotesInitialContentMarkdownModule = $markdown;
+
+        return $this;
+    }
+
+    /**
+     * The sharedNotesInitialContentMarkdown POST module.
+     */
+    public function getSharedNotesInitialContentMarkdownAsXML(): string
+    {
+        if (null === $this->sharedNotesInitialContentMarkdownModule) {
+            return '';
+        }
+
+        $markdown = $this->sharedNotesInitialContentMarkdownModule;
+
+        return <<<XML
+            <modules>
+               <module name="sharedNotesInitialContentMarkdown">
+                     <![CDATA[
+                     {$markdown}
+                     ]]>
+               </module>
+            </modules>
+            XML;
+    }
+
+    #[ApiParameterMapper(attributeName: 'notifyRecordingAppend')]
+    public function getNotifyRecordingAppend(): ?string
+    {
+        return $this->notifyRecordingAppend;
+    }
+
+    /**
+     * Plain text appended to the recording notification dialog shown to the
+     * users when notifyRecordingIsOn is active.
+     */
+    public function setNotifyRecordingAppend(string $notifyRecordingAppend): self
+    {
+        $this->notifyRecordingAppend = $notifyRecordingAppend;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'requireUserConsentBeforeUnmuting')]
+    public function isRequireUserConsentBeforeUnmuting(): ?bool
+    {
+        return $this->requireUserConsentBeforeUnmuting;
+    }
+
+    /**
+     * Setting to true shows a consent dialog to a user before a moderator is
+     * allowed to unmute them. Only relevant when allowModsToUnmuteUsers is set.
+     *
+     * Default: false
+     */
+    public function setRequireUserConsentBeforeUnmuting(bool $requireUserConsentBeforeUnmuting): self
+    {
+        $this->requireUserConsentBeforeUnmuting = $requireUserConsentBeforeUnmuting;
+
+        return $this;
+    }
+
+    #[ApiParameterMapper(attributeName: 'lockSettingsPresenterPolicy')]
+    public function getLockSettingsPresenterPolicy(): ?PresenterPolicy
+    {
+        return $this->lockSettingsPresenterPolicy;
+    }
+
+    /**
+     * Policy controlling the "Request to Present" feature.
+     *
+     * Default: requireApproval
+     */
+    public function setLockSettingsPresenterPolicy(PresenterPolicy $lockSettingsPresenterPolicy): self
+    {
+        $this->lockSettingsPresenterPolicy = $lockSettingsPresenterPolicy;
+
+        return $this;
+    }
+
+    public function getHTTPQuery(): string
+    {
+        $queries = $this->toApiDataArray();
+
+        // Add breakout rooms parameters only if the meeting is a breakout room
+        if ($this->isBreakout()) {
+            $queries = array_merge($queries, [
+                'isBreakout'      => $this->isBreakout ? 'true' : 'false',
+                'parentMeetingID' => $this->parentMeetingId,
+                'sequence'        => $this->sequence,
+                'freeJoin'        => null !== $this->freeJoin ? ($this->freeJoin ? 'true' : 'false') : null,
+            ]);
+        } else {
+            $queries = array_merge($queries, [
+                'learningDashboardCleanupDelayInMinutes' => $this->learningDashboardCleanupDelayInMinutes,
+            ]);
+
+            // Pre-defined groups to automatically assign the students to a given breakout room
+            if (!empty($this->breakoutRoomsGroups)) {
+                $queries = array_merge($queries, [
+                    'groups' => json_encode($this->breakoutRoomsGroups),
+                ]);
+            }
+        }
+
+        $queries = $this->buildMeta($queries);
+        $queries = $this->buildPluginMeta($queries);
+
+        return $this->buildHTTPQuery($queries);
+    }
+
+    /**
+     * Merges several <modules> documents into one.
+     *
+     * @param array<int, string> $modulesXml
+     */
+    private function mergeModulesXml(array $modulesXml): string
+    {
+        $first = (string) array_shift($modulesXml);
+
+        try {
+            $targetDom     = new \DOMDocument();
+            $targetModules = $targetDom->loadXML($first) ? $targetDom->getElementsByTagName('modules')->item(0) : null;
+
+            if (null === $targetModules) {
+                return $first;
+            }
+
+            foreach ($modulesXml as $xml) {
+                $sourceDom     = new \DOMDocument();
+                $sourceModules = $sourceDom->loadXML($xml) ? $sourceDom->getElementsByTagName('modules')->item(0) : null;
+
+                if (null === $sourceModules) {
+                    continue;
+                }
+
+                foreach ($sourceModules->childNodes as $childNode) {
+                    if (XML_ELEMENT_NODE === $childNode->nodeType) {
+                        $targetModules->appendChild($targetDom->importNode($childNode, true));
+                    }
+                }
+            }
+
+            return $targetDom->saveXML() ?: $first;
+            // @codeCoverageIgnoreStart
+        } catch (\Exception) {
+            // If XML parsing fails, return the first modules XML as fallback
+            return $first;
+            // @codeCoverageIgnoreEnd
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $array
+     *
+     * @return array<string, mixed>
+     */
+    private function buildPluginMeta(array $array): array
+    {
+        foreach ($this->pluginMeta as $key => $value) {
+            if (is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            }
+
+            $array['plugin_' . $key] = $value;
+        }
+
+        return $array;
+    }
+}

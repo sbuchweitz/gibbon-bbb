@@ -1,0 +1,113 @@
+<response>
+  <returncode>SUCCESS</returncode>
+  <recordings>
+    <recording>
+      <recordID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124</recordID>
+      <meetingID>gibbon-abc123def456-42-7</meetingID>
+      <internalMeetingID>183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124</internalMeetingID>
+      <name><![CDATA[Year 10 Maths - Lesson 7]]></name>
+      <isBreakout>false</isBreakout>
+      <published>true</published>
+      <state>published</state>
+      <startTime>1530718721124</startTime>
+      <endTime>1530722321876</endTime>
+      <participants>12</participants>
+      <metadata>
+        <isBreakout>false</isBreakout>
+        <bbb-origin>Gibbon</bbb-origin>
+        <bbb-origin-server-name>gibbon.example.net</bbb-origin-server-name>
+        <gibbon-instance>abc123def456</gibbon-instance>
+        <gibbon-planner-entry>42</gibbon-planner-entry>
+        <meetingName><![CDATA[Year 10 Maths - Lesson 7]]></meetingName>
+        <meetingId>gibbon-abc123def456-42-7</meetingId>
+      </metadata>
+      <size>48211345</size>
+      <playback>
+        <format>
+          <type>presentation</type>
+          <url>https://bbb.example.net/playback/presentation/2.3/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124</url>
+          <processingTime>7467</processingTime>
+          <length>14</length>
+          <preview>
+            <images>
+              <image alt="Welcome" height="136" width="236">https://bbb.example.net/presentation/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124/presentation/d2d9a672/thumbnails/thumb-1.png</image>
+              <image alt="Slide 2" height="136" width="236">https://bbb.example.net/presentation/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124/presentation/d2d9a672/thumbnails/thumb-2.png</image>
+            </images>
+          </preview>
+        </format>
+        <format>
+          <type>video</type>
+          <url>https://bbb.example.net/playback/video/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124/</url>
+          <processingTime>3120</processingTime>
+          <length>14</length>
+        </format>
+        <format>
+          <type>transcript</type>
+          <url>https://bbb.example.net/presentation/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124/transcript/transcript.txt</url>
+          <processingTime>0</processingTime>
+          <length>14</length>
+        </format>
+        <format>
+          <type>summary</type>
+          <url>https://bbb.example.net/presentation/183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1530718721124/summary/summary.html</url>
+          <processingTime>0</processingTime>
+          <length>14</length>
+        </format>
+      </playback>
+    </recording>
+    <recording>
+      <recordID>2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456</recordID>
+      <meetingID>gibbon-abc123def456-42-7</meetingID>
+      <internalMeetingID>2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456</internalMeetingID>
+      <name><![CDATA[Year 10 Maths - Lesson 7 (part 2)]]></name>
+      <isBreakout>false</isBreakout>
+      <published>true</published>
+      <state>published</state>
+      <startTime>1530722400456</startTime>
+      <endTime>1530725999001</endTime>
+      <participants>12</participants>
+      <metadata>
+        <isBreakout>false</isBreakout>
+        <bbb-origin>Gibbon</bbb-origin>
+        <bbb-origin-server-name>gibbon.example.net</bbb-origin-server-name>
+        <gibbon-instance>abc123def456</gibbon-instance>
+        <gibbon-planner-entry>42</gibbon-planner-entry>
+        <meetingName><![CDATA[Year 10 Maths - Lesson 7 (part 2)]]></meetingName>
+        <meetingId>gibbon-abc123def456-42-7</meetingId>
+      </metadata>
+      <size>48211345</size>
+      <playback>
+        <format>
+          <type>presentation</type>
+          <url>https://bbb.example.net/playback/presentation/2.3/2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456</url>
+          <processingTime>7467</processingTime>
+          <length>14</length>
+          <preview>
+            <images>
+              <image alt="Welcome" height="136" width="236">https://bbb.example.net/presentation/2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456/presentation/d2d9a672/thumbnails/thumb-1.png</image>
+              <image alt="Slide 2" height="136" width="236">https://bbb.example.net/presentation/2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456/presentation/d2d9a672/thumbnails/thumb-2.png</image>
+            </images>
+          </preview>
+        </format>
+        <format>
+          <type>video</type>
+          <url>https://bbb.example.net/playback/video/2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456/</url>
+          <processingTime>3120</processingTime>
+          <length>14</length>
+        </format>
+        <format>
+          <type>transcript</type>
+          <url>https://bbb.example.net/presentation/2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456/transcript/transcript.txt</url>
+          <processingTime>0</processingTime>
+          <length>14</length>
+        </format>
+        <format>
+          <type>summary</type>
+          <url>https://bbb.example.net/presentation/2f5a1c9e7b3d4a6c8e0f1b2d3c4a5b6c7d8e9f01-1530722400456/summary/summary.html</url>
+          <processingTime>0</processingTime>
+          <length>14</length>
+        </format>
+      </playback>
+    </recording>
+  </recordings>
+</response>
