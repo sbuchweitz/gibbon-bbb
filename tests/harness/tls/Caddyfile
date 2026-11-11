@@ -1,0 +1,13 @@
+# HTTPS front for the harness Gibbon (self-signed via Caddy's internal CA). Embedded BigBlueButton needs a
+# secure top-level page: in a plain-HTTP page the iframe has no navigator.mediaDevices and the client crashes.
+{
+	local_certs
+	skip_install_trust
+}
+
+{$GIBBON_TLS_HOST:localhost} {
+	tls internal
+	reverse_proxy gibbon:80 {
+		header_up X-Forwarded-Proto https
+	}
+}

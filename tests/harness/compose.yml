@@ -33,6 +33,19 @@ services:
       # The module under test, mounted where Gibbon expects it.
       - ${MODULE_DIR:-../..}:/var/www/html/modules/BigBlueButton:ro
 
+  # HTTPS front for Gibbon (not started by `up`):
+  #   docker compose -f tests/harness/compose.yml --profile tls up -d gibbon-tls
+  gibbon-tls:
+    profiles: ["tls"]
+    image: caddy:2.10-alpine
+    depends_on: [gibbon]
+    environment:
+      GIBBON_TLS_HOST: ${GIBBON_TLS_HOST:-localhost}
+    ports:
+      - "${GIBBON_TLS_PORT:-2007}:443"
+    volumes:
+      - ./tls/Caddyfile:/etc/caddy/Caddyfile:ro
+
   # PHPUnit runner (not started by `up`):
   #   docker compose -f tests/harness/compose.yml run --rm tests php tools/vendor/bin/phpunit
   tests:

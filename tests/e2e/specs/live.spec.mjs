@@ -1,5 +1,5 @@
 // Live class: the lesson page only links to it; the class opens in a new tab (Gibbon page + BBB iframe).
-import { expect, test } from '@playwright/test';
+import { chromium, expect, test } from '@playwright/test';
 import { BBB_URL, GIBBON_URL } from '../support/env.mjs';
 import { lessonUrl, login, restoreSnapshot, sql, sqlValue } from '../support/gibbon.mjs';
 import { mock } from '../support/mock.mjs';
@@ -109,4 +109,20 @@ test('Direct mode sends the tab straight to BigBlueButton', async ({ page }) => 
   await expect(tab.locator('#status')).toHaveAttribute('data-role', 'MODERATOR');
   expect(new URL(tab.url()).pathname).toBe('/html5client/join');
   expect((await mock.lastRequest('create')).params.allowRequestsWithoutSession).toBeUndefined();
+});
+
+test('on a plain-HTTP Gibbon the class page joins directly instead of embedding', async () => {
+  test.skip(!GIBBON_URL.startsWith('http:'), 'needs the plain-HTTP harness');
+  // args: [] drops the config's secure-origin flag (Playwright applies config launch options to manual launches too).
+  const browser = await chromium.launch({ args: [] });
+  try {
+    const page = await browser.newPage();
+    await login(page, personas.teacher, PASSWORD);
+    expect(await page.evaluate(() => window.isSecureContext)).toBe(false);
+    await page.goto(liveUrl(lessons.live));
+    await expect(page).toHaveURL(/\/html5client\/join\?sessionToken=/); // via bbb_join.php, top-level
+    await expect(page.locator('#status')).toHaveAttribute('data-role', 'MODERATOR');
+  } finally {
+    await browser.close();
+  }
 });

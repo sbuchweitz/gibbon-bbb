@@ -1,3 +1,4 @@
 .scratch/
 .phpunit.cache/
 coverage/
+.env

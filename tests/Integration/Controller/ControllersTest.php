@@ -108,6 +108,16 @@ final class ControllersTest extends TestCase
         self::assertStringContainsString('bbb_join.php?gibbonPlannerEntryID=50', $this->hook(self::STUDENT, self::LIVE, LessonHookController::LIVE_HOOK));
     }
 
+    public function testEmbeddedFrameIsOnlyLoadedByScriptSoInsecurePagesCanJoinDirectly(): void
+    {
+        $page = (new LiveController($this->services(self::TEACHER), self::view()))->page(self::LIVE, null, JoinMode::Embedded);
+
+        self::assertMatchesRegularExpression('#<iframe class="bbb-frame" data-src="https://bbb\.test/join\?[^"]+"#', $page->body);
+        self::assertDoesNotMatchRegularExpression('#<iframe class="bbb-frame"[^>]* src=#', $page->body);
+        self::assertStringContainsString('data-bbb-direct-url="https://gibbon.test/modules/BigBlueButton/bbb_join.php?gibbonPlannerEntryID=50"', $page->body);
+        self::assertStringContainsString('js/live.js', $page->body);
+    }
+
     public function testOldLessonsWithoutVideoNeverQueryBigBlueButton(): void
     {
         self::assertSame('', $this->hook(self::STUDENT, self::LEGACY_PLAIN, LessonHookController::RECORDED_HOOK));
@@ -177,7 +187,7 @@ final class ControllersTest extends TestCase
         self::assertSame('{"state":"waiting"}', $student->status(self::LIVE, null)->body);
 
         $teacher = (new LiveController($this->services(self::TEACHER, 'Lesson Planner_viewAllEditMyClasses'), self::view()))->page(self::LIVE, null, JoinMode::Embedded);
-        self::assertStringContainsString('<iframe class="bbb-frame"', $teacher->body);
+        self::assertStringContainsString('<iframe class="bbb-frame" data-src="https://bbb.test/join?', $teacher->body);
         self::assertStringContainsString('allow-popups', $teacher->body);
         self::assertStringContainsString("frame-src 'self' https: https://bbb.test", $teacher->headers['Content-Security-Policy']);
 

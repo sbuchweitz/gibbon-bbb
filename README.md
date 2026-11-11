@@ -43,6 +43,8 @@ Module for [Gibbon][gibbon]: BigBlueButton video classes and recordings for less
 | **Embedded** (default) | a Gibbon page with the class in an iframe | Popups (such as the learning analytics dashboard) are allowed. A *Trouble joining?* link opens the class without the frame. |
 | **Direct** | BigBlueButton itself | Nothing to relax. The most compatible option (Safari, Scalelite). |
 
+*Embedded* needs Gibbon on **HTTPS**. Inside a plain-HTTP page the browser gives the class no camera or microphone, and BigBlueButton's client fails. The class page detects this and opens the class directly instead.
+
 *Allow embedded join without session cookie* (default **Yes**) is needed when Gibbon and BigBlueButton are on different domains, because a cross-site iframe cannot use BigBlueButton's session cookie. Set it to **No** if both share a domain (for example `gibbon.school.org` and `bbb.school.org`).
 
 ## Permissions
@@ -77,6 +79,15 @@ Update the module in *System Admin › Manage Modules*. The upgrade:
   - `docker compose -f tests/harness/compose.yml up -d --build` starts the stack.
   - `docker compose -f tests/harness/compose.yml run --rm tests php tools/vendor/bin/phpunit` runs the unit and integration tests on PHP 8.2.
   - `cd tests/e2e && npm ci && npm run install-gibbon && npm test` runs the Playwright end-to-end tests. The upgrade test also needs `tests/e2e/scripts/fetch-v161.sh`, which downloads the original 1.x module.
+  - `node tests/e2e/scripts/staging-smoke.mjs [--record]` checks a **real** BigBlueButton server. Put `BBB_STAGING_URL` and `BBB_STAGING_SECRET` in the git-ignored `.env` at the repository root. The script never prints the secret. It covers:
+    - the settings connection test
+    - embedded and direct joins
+    - microphone and webcam inside the frame
+    - viewer role
+    - the analytics popup
+    - recording
+    - ending and reopening the meeting
+  - The `tls` profile (`docker compose -f tests/harness/compose.yml --profile tls up -d gibbon-tls`) puts Gibbon behind HTTPS on port 2007, as production runs it.
 - **Dev tooling** (PHPUnit, PHPStan) lives in `tools/`: run `cd tools && composer install`. It is never shipped.
 - **Bundled dependencies.** `vendor/` is committed. After changing `composer.json`, rebuild it with `bin/build-vendor.sh`.
 

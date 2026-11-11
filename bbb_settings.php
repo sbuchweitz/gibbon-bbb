@@ -66,7 +66,8 @@ $form->addRow()->addClass('bigBlueButton')->addHeading('Joining', __m('Joining a
 
 $row = $form->addRow()->addClass('bigBlueButton');
     $row->addLabel('joinMode', __m('Join Class (New Tab) opens'))
-        ->description(__m('Embedded keeps a Gibbon header above the class. Direct sends the tab straight to BigBlueButton.'));
+        ->description(__m('Embedded keeps a Gibbon header above the class. Direct sends the tab straight to BigBlueButton.')
+            .(str_starts_with((string) $session->get('absoluteURL'), 'https:') ? '' : ' '.__m('This Gibbon site is not on HTTPS: an embedded class cannot use the camera or microphone on a plain-HTTP page, so the class page opens the class directly instead.')));
     $row->addSelect('joinMode')->fromArray([
         'embedded' => __m('A Gibbon page with the class embedded'),
         'direct' => __m('BigBlueButton directly'),

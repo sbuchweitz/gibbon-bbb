@@ -18,6 +18,7 @@ Rewrite of the module.
 - Meeting IDs are unique per Gibbon installation and stored per lesson. Recordings no longer disappear when a lesson is edited, moved to a later date or has *Video Chat* unticked. Pre-2.0 recordings stay visible.
 - New **Recording Host Override** setting, for BigBlueButton servers that publish recordings with the wrong host.
 - Students who join before the teacher wait on a page that joins them automatically. Only moderators start meetings.
+- On a Gibbon site that isn't on HTTPS, the class page opens the class directly: an embedded class can't use the camera or microphone there.
 - The BigBlueButton library is bundled: installing needs no `composer` step. A missing dependency or an unsupported PHP version shows an admin notice instead of breaking lesson pages.
 - Calls to BigBlueButton have a total timeout. Recording lists are cached and still shown while BigBlueButton is unreachable.
 - Fresh installs no longer grant parents the live and recorded actions.
